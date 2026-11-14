@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="340" viewBox="0 0 1280 340" role="img" aria-label="Decision Room: How does a smart team make a bad decision?">
+  <defs>
+    <radialGradient id="g" cx="78%" cy="40%" r="70%"><stop offset="0" stop-color="#2b2f45"/><stop offset="1" stop-color="#15171f"/></radialGradient>
+    <linearGradient id="ring" x1="0" x2="1"><stop offset="0" stop-color="#e4572e" stop-opacity=".9"/><stop offset="1" stop-color="#e4572e" stop-opacity="0"/></linearGradient>
+  </defs>
+  <rect width="1280" height="340" rx="24" fill="url(#g)"/>
+  <g transform="translate(64,64)">
+    <rect width="44" height="44" rx="12" fill="#e4572e"/>
+    <path d="M22 9 10 15.5v13L22 35l12-6.5v-13z M22 35V22 M10 15.5 22 22l12-6.5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+    <text x="60" y="31" font-family="Georgia,'Times New Roman',serif" font-size="26" font-weight="600" fill="#ece9e2">Decision Room</text>
+  </g>
+  <text x="64" y="178" font-family="Georgia,'Times New Roman',serif" font-size="46" font-weight="600" fill="#ffffff">How does a <tspan fill="#ff8a65" font-style="italic">smart</tspan> team</text>
+  <text x="64" y="232" font-family="Georgia,'Times New Roman',serif" font-size="46" font-weight="600" fill="#ffffff">make a <tspan fill="#ff8a65" font-style="italic">bad</tspan> decision?</text>
+  <g font-family="Segoe UI,Helvetica,Arial,sans-serif" font-size="15" font-weight="600">
+    <rect x="64" y="262" width="118" height="34" rx="17" fill="#222531"/><text x="123" y="284" text-anchor="middle" fill="#ece9e2">1 · Share</text>
+    <rect x="192" y="262" width="142" height="34" rx="17" fill="#222531"/><text x="263" y="284" text-anchor="middle" fill="#ece9e2">2 · Challenge</text>
+    <rect x="344" y="262" width="122" height="34" rx="17" fill="#222531"/><text x="405" y="284" text-anchor="middle" fill="#ece9e2">3 · Decide</text>
+    <rect x="476" y="262" width="112" height="34" rx="17" fill="#e4572e"/><text x="532" y="284" text-anchor="middle" fill="#fff">4 · Learn</text>
+  </g>
+  <!-- isometric team: six pillars, one warning signal, the decision in the middle -->
+  <g transform="translate(980,215)">
+    <ellipse cx="0" cy="18" rx="230" ry="82" fill="#ffffff" fill-opacity=".05" stroke="#ffffff" stroke-opacity=".15"/>
+    <ellipse cx="0" cy="18" rx="120" ry="43" fill="none" stroke="#ffffff" stroke-opacity=".25" stroke-dasharray="4 5"/>
+    <g><ellipse cx="96" cy="62" rx="34" ry="12" fill="none" stroke="#e4572e" stroke-width="3"/><ellipse cx="96" cy="62" rx="56" ry="20" fill="none" stroke="#e4572e" stroke-opacity=".35" stroke-width="2"/><path d="M-165 -20 L-150 -12.5 L-150 -92.5 L-165 -100 Z" fill="#324dad"/><path d="M-150 -12.5 L-135 -20 L-135 -100 L-150 -92.5 Z" fill="#263b84"/><path d="M-165 -100 L-150 -92.5 L-135 -100 L-150 -107.5 Z" fill="#6c84d8"/><path d="M-95 -55 L-80 -47.5 L-80 -147.5 L-95 -155 Z" fill="#27865a"/><path d="M-80 -47.5 L-65 -55 L-65 -155 L-80 -147.5 Z" fill="#1d6644"/><path d="M-95 -155 L-80 -147.5 L-65 -155 L-80 -162.5 Z" fill="#62b68f"/><path d="M40 -60 L55 -52.5 L55 -122.5 L40 -130 Z" fill="#7543b0"/><path d="M55 -52.5 L70 -60 L70 -130 L55 -122.5 Z" fill="#593387"/><path d="M40 -130 L55 -122.5 L70 -130 L55 -137.5 Z" fill="#a77bdb"/><path d="M150 -25 L165 -17.5 L165 -127.5 L150 -135 Z" fill="#0f6b79"/><path d="M165 -17.5 L180 -25 L180 -135 L165 -127.5 Z" fill="#0b515c"/><path d="M150 -135 L165 -127.5 L180 -135 L165 -142.5 Z" fill="#4d9eab"/><path d="M-120 50 L-105 57.5 L-105 -24.5 L-120 -32 Z" fill="#b88217"/><path d="M-105 57.5 L-90 50 L-90 -32 L-105 -24.5 Z" fill="#8d6412"/><path d="M-120 -32 L-105 -24.5 L-90 -32 L-105 -39.5 Z" fill="#e2b354"/><path d="M-30 15 L0 30 L0 -10 L-30 -25 Z" fill="#c6c2bb"/><path d="M0 30 L30 15 L30 -25 L0 -10 Z" fill="#97948f"/><path d="M-30 -25 L0 -10 L30 -25 L0 -40 Z" fill="#eeebe4"/><path d="M81 58 L96 65.5 L96 13.5 L81 6 Z" fill="#c14927"/><path d="M96 65.5 L111 58 L111 6 L96 13.5 Z" fill="#94381d"/><path d="M81 6 L96 13.5 L111 6 L96 -1.5 Z" fill="#ea8162"/></g>
+    <text x="96" y="104" text-anchor="middle" font-family="Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#ff8a65">the warning</text>
+    <text x="0" y="56" text-anchor="middle" font-family="Segoe UI,Helvetica,Arial,sans-serif" font-size="13" fill="#d6d3cc">the decision</text>
+  </g>
+</svg>
