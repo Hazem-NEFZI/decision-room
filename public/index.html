@@ -1,0 +1,1161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Decision Room · How does a smart team make bad decisions?</title>
+<meta name="description" content="A team decision tool built on the question: how does a smart team make bad decisions? Share, Challenge, Decide, Learn.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23e4572e'/%3E%3Cpath d='M16 6 8 10.5v9L16 24l8-4.5v-9z' fill='none' stroke='white' stroke-width='2.2' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --side:#15171f;--side2:#222531;--sink:#ece9e2;--smut:#9093a0;
+  --bg:#f4f1ea;--panel:#fffdf8;--sunk:#efebe2;--line:#e2ddd1;--line2:#ece8de;
+  --ink:#1b1c22;--ink2:#54555e;--ink3:#86868f;
+  --acc:#e4572e;--acc2:#c9441d;--accs:#fbe4db;
+  --ok:#23895a;--oks:#dcf0e4;--warn:#b07a0c;--warns:#f7ebcd;--bad:#cf3f25;--bads:#f9ddd5;--blue:#3b5bcc;--blues:#e1e7fa;
+  --go:#2e9e6a;--hold:#d99a1c;--no:#d8492f;
+  --display:"Fraunces",Cambria,Georgia,serif;--body:"Inter",system-ui,-apple-system,"Segoe UI",Calibri,sans-serif;
+  --r:14px;--shadow:0 1px 2px rgba(27,28,34,.05),0 6px 18px rgba(27,28,34,.05);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#17181d;--panel:#1f2027;--sunk:#191a20;--line:#30323b;--line2:#292b33;--ink:#ecebe6;--ink2:#b5b4ba;--ink3:#868690;
+  --accs:#3a231c;--oks:#17321f;--warns:#3a2f14;--bads:#3b1d17;--blues:#1d2540;--shadow:none;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#17181d;--panel:#1f2027;--sunk:#191a20;--line:#30323b;--line2:#292b33;--ink:#ecebe6;--ink2:#b5b4ba;--ink3:#868690;
+  --accs:#3a231c;--oks:#17321f;--warns:#3a2f14;--bads:#3b1d17;--blues:#1d2540;--shadow:none;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.45;overflow:hidden;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--acc2)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+h1,h2,h3,h4{margin:0;font-weight:600;text-wrap:balance}
+h1{font-family:var(--display);font-size:26px;letter-spacing:-.01em}
+h2{font-family:var(--display);font-size:20px}
+h3{font-size:14.5px}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700;color:var(--ink3)}
+.mut{color:var(--ink2)}.dim{color:var(--ink3)}.small{font-size:12.5px}
+.num{font-family:var(--display);font-variant-numeric:tabular-nums;font-weight:600}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+.shell{height:100dvh;display:grid;grid-template-columns:236px minmax(0,1fr)}
+.side{background:var(--side);color:var(--sink);display:flex;flex-direction:column;padding:16px 12px;gap:3px;min-height:0;
+  padding-top:max(16px,env(safe-area-inset-top,0px));padding-left:max(12px,env(safe-area-inset-left,0px));padding-bottom:max(14px,env(safe-area-inset-bottom,0px))}
+.brand{display:flex;align-items:center;gap:10px;padding:2px 8px 12px;border:0;background:none;color:inherit;text-align:left}
+.mark{width:30px;height:30px;border-radius:9px;background:var(--acc);display:grid;place-items:center;flex:none}
+.mark svg{width:17px;height:17px;color:#fff}
+.brand b{font-family:var(--display);font-size:18px;font-weight:600;display:block;line-height:1.1}
+.brand small{color:var(--smut);font-size:11.5px}
+.navlabel{font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--smut);padding:10px 10px 4px;font-weight:700}
+.nav{display:flex;align-items:center;gap:10px;border:0;background:transparent;color:var(--sink);padding:8px 10px;border-radius:9px;text-align:left;font-weight:500;width:100%}
+.nav:hover{background:var(--side2)}
+.nav[aria-current="page"]{background:var(--side2);box-shadow:inset 3px 0 0 var(--acc)}
+.nav .cnt{margin-left:auto;font-size:11px;font-weight:700;background:var(--acc);color:#fff;border-radius:10px;padding:1px 7px}
+.nav .cnt.q{background:#3a3e4c;color:var(--sink)}
+.nav.sub{padding-left:22px;font-size:13px;color:#cfccc4}
+.nav .t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.side .sp{flex:1}
+.me{display:flex;align-items:center;gap:10px;padding:10px;border-radius:11px;background:var(--side2)}
+.av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:12px;flex:none;color:#fff}
+.me b{display:block;font-size:13px;line-height:1.2}.me small{color:var(--smut);font-size:11.5px}
+.switch{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:9px;border:1px solid #333745;background:transparent;color:var(--sink);font-size:12.5px;width:100%;text-align:left}
+.switch:hover{background:var(--side2)}
+.side select{background:var(--side2);border:1px solid #333745;color:var(--sink);border-radius:8px;padding:6px 8px;width:100%;font-size:12.5px}
+.status{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--smut);padding:6px 10px}
+.status i{width:7px;height:7px;border-radius:50%;background:var(--ok)}
+.status.off i{background:var(--hold)}
+
+.main{display:grid;grid-template-rows:auto minmax(0,1fr);min-height:0;min-width:0;
+  padding:18px 22px 16px;padding-right:max(22px,env(safe-area-inset-right,0px));padding-top:max(18px,env(safe-area-inset-top,0px));padding-bottom:max(16px,env(safe-area-inset-bottom,0px));gap:14px}
+.head{display:flex;align-items:flex-end;gap:12px 18px;flex-wrap:wrap;justify-content:space-between}
+.head .l{min-width:0;flex:1 1 300px}
+.head .sub{color:var(--ink2);font-size:13.5px;margin-top:3px;max-width:80ch}
+.crumb{font-size:12.5px;color:var(--ink3);margin-bottom:2px}
+.crumb button{border:0;background:none;padding:0;color:var(--ink3);text-decoration:underline;text-underline-offset:2px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.page{min-height:0;display:grid;gap:14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px;min-height:0;min-width:0;overflow:hidden}
+.panel .ph{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.panel .hint{font-size:12.5px;color:var(--ink2);margin-top:-6px}
+.grow{flex:1 1 0;min-height:0}
+
+.btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:7px 13px;font-weight:600;font-size:13px;white-space:nowrap;transition:background .15s,border-color .15s,transform .15s}
+.btn:hover{border-color:var(--ink3)}.btn:active{transform:translateY(1px)}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff}.btn.pri:hover{background:var(--acc2);border-color:var(--acc2)}
+.btn.dark{background:var(--ink);border-color:var(--ink);color:var(--panel)}
+.btn.ai{background:linear-gradient(135deg,#2b2f45,#15171f);border-color:#2b2f45;color:#fff}
+.btn.ai .ic{color:#ffb59e}
+.btn.sm{padding:4px 10px;font-size:12.5px;border-radius:8px}
+.btn.lg{padding:11px 18px;font-size:14.5px;border-radius:11px}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--ink2)}.btn.ghost:hover{background:var(--sunk)}
+.btn.danger{color:var(--bad)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.x{border:0;background:none;color:var(--ink3);font-size:17px;line-height:1;padding:2px 4px;border-radius:6px}.x:hover{color:var(--bad);background:var(--bads)}
+.ic{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.field{width:100%;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:8px 11px;transition:border-color .15s}
+.field:focus{border-color:var(--acc);outline:none}
+textarea.field{resize:none;line-height:1.45}
+select.field{width:auto;padding:6px 9px}
+::placeholder{color:var(--ink3);opacity:1}
+label.lab{display:block;font-size:12.5px;font-weight:600;color:var(--ink2);margin-bottom:4px}
+.add{display:flex;gap:6px;flex-wrap:wrap}.add .field{flex:1 1 160px;width:auto}
+
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap;background:var(--sunk);color:var(--ink2)}
+.pill.ok{background:var(--oks);color:var(--ok)}.pill.warn{background:var(--warns);color:var(--warn)}.pill.bad{background:var(--bads);color:var(--bad)}.pill.acc{background:var(--accs);color:var(--acc2)}.pill.blue{background:var(--blues);color:var(--blue)}
+.pill i{width:6px;height:6px;border-radius:50%;background:currentColor}
+.seg{display:inline-flex;background:var(--sunk);border-radius:10px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:transparent;padding:5px 12px;border-radius:8px;font-weight:600;font-size:13px;color:var(--ink2)}
+.seg button[aria-pressed="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.seg.vote button[aria-pressed="true"]{color:#fff}
+
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tabs button{border:0;background:none;padding:9px 14px 10px;font-weight:600;color:var(--ink3);border-bottom:2px solid transparent;margin-bottom:-1px;display:flex;align-items:center;gap:7px}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--acc)}
+.tabs .n{font-size:11px;background:var(--sunk);border-radius:9px;padding:0 6px;color:var(--ink2)}
+.stepper{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.stepper span{font-size:12px;font-weight:600;color:var(--ink3);display:flex;align-items:center;gap:6px}
+.stepper span b{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:11px;border:1.5px solid var(--line);color:var(--ink3)}
+.stepper span.done{color:var(--ok)}.stepper span.done b{background:var(--ok);border-color:var(--ok);color:#fff}
+.stepper span.on{color:var(--ink)}.stepper span.on b{background:var(--acc);border-color:var(--acc);color:#fff}
+.stepper i{width:18px;height:1.5px;background:var(--line)}
+
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.kpi{padding:14px 16px;gap:2px}
+.kpi .v{font-family:var(--display);font-size:32px;font-weight:600;line-height:1.05;font-variant-numeric:tabular-nums}
+.kpi .l{font-size:12.5px;color:var(--ink2);font-weight:600}
+.kpi .s{font-size:12px;color:var(--ink3)}
+table.t{width:100%;border-collapse:collapse;font-size:13.5px}
+table.t th{text-align:left;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);font-weight:700;padding:0 10px 8px;border-bottom:1px solid var(--line)}
+table.t td{padding:9px 10px;border-bottom:1px solid var(--line2);vertical-align:middle}
+table.t tr.click{cursor:pointer}table.t tr.click:hover td{background:var(--sunk)}
+table.t td.title{font-weight:600;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.list{list-style:none;margin:0;padding:0;display:grid;gap:7px;align-content:start}
+.list li{display:flex;gap:6px 10px;align-items:center;flex-wrap:wrap;padding:9px 11px;border:1px solid var(--line2);border-radius:10px;background:var(--panel)}
+.list li.soft{background:var(--sunk);border-color:transparent}
+.list li.done{opacity:.6}
+.list .t{flex:1 1 180px;min-width:0;overflow-wrap:anywhere}
+.list .by{display:block;font-size:12px;color:var(--ink3);margin-top:1px}
+.pager{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--ink3)}
+.pager button{border:1px solid var(--line);background:var(--panel);border-radius:7px;width:24px;height:24px;display:grid;place-items:center;padding:0}
+.empty{border:1.5px dashed var(--line);border-radius:12px;padding:16px;color:var(--ink2);font-size:13px;text-align:center}
+.bar{height:8px;background:var(--sunk);border-radius:5px;overflow:hidden}.bar i{display:block;height:100%;border-radius:5px;background:var(--acc);transition:width .3s}
+.hbar{display:grid;grid-template-columns:86px minmax(0,1fr) 38px;gap:10px;align-items:center;font-size:13px}
+.hbar .bar{height:12px}.hbar>span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ring{--p:0;--c:var(--acc);width:52px;height:52px;border-radius:50%;background:conic-gradient(var(--c) calc(var(--p)*1%),var(--sunk) 0);display:grid;place-items:center;flex:none}
+.ring>span{width:40px;height:40px;border-radius:50%;background:var(--panel);display:grid;place-items:center;font-family:var(--display);font-weight:600;font-size:14px}
+.ring.lg{width:84px;height:84px}.ring.lg>span{width:66px;height:66px;font-size:22px}
+.ring.sm{width:34px;height:34px}.ring.sm>span{width:26px;height:26px;font-size:10.5px}
+.alert{padding:10px 12px;border-radius:10px;font-size:13px;display:flex;gap:10px;align-items:flex-start}
+.alert.warn{background:var(--warns)}.alert.bad{background:var(--bads)}.alert.ok{background:var(--oks)}.alert.info{background:var(--blues)}
+.alert .ic{margin-top:1px}
+.check{display:flex;gap:10px;align-items:flex-start;padding:5px 6px;border:0;border-bottom:1px solid var(--line2);background:none;width:100%;text-align:left}
+.check:hover{background:var(--sunk)}
+.check .dotc{width:20px;height:20px;border-radius:50%;flex:none;display:grid;place-items:center;border:1.5px solid var(--line);margin-top:1px}
+.check.ok .dotc{background:var(--ok);border-color:var(--ok);color:#fff}
+.check b{font-size:13.5px;display:block}.check small{color:var(--ink3);font-size:12px}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:600;color:var(--ink2)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.opt{border:1.5px solid var(--line);background:var(--panel);border-radius:12px;padding:14px 8px;text-align:center;font-weight:700;font-size:15px;transition:all .15s;min-width:0}
+.opt small{display:block;font-weight:500;font-size:12px;color:var(--ink3);margin-top:2px}
+.opts{display:grid;gap:8px}
+.scale{display:flex;gap:5px}.scale button{flex:1;border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:6px 0;font-weight:700;font-size:13px}
+.scale button[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.qrow{display:grid;gap:6px;padding:9px 0;border-bottom:1px solid var(--line2)}.qrow:last-child{border-bottom:0}
+.matrix{display:grid;grid-template-columns:auto repeat(3,40px);grid-template-rows:repeat(3,36px) auto;gap:3px;align-self:start}
+.mc{border-radius:6px;display:flex;align-items:center;justify-content:center;gap:2px;flex-wrap:wrap}
+.mc.lo{background:var(--oks)}.mc.mid{background:var(--warns)}.mc.hi{background:var(--bads)}
+.dot{width:19px;height:19px;border-radius:50%;display:grid;place-items:center;font-size:10.5px;font-weight:800;background:var(--ink);color:var(--panel);flex:none}
+.ax{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;align-self:center;text-align:center}
+.tile{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--panel);text-align:left;display:flex;flex-direction:column;gap:6px}
+.tile.on{border-color:var(--acc);background:var(--accs)}
+.tile b{font-size:13.5px}.tile .row{gap:6px}
+.quad{display:grid;grid-template-columns:auto 1fr 1fr;grid-template-rows:1fr 1fr auto;gap:6px;min-height:0}
+.quad div.q{border-radius:10px;padding:10px;background:var(--sunk);font-size:12.5px;color:var(--ink2);display:flex;flex-direction:column;justify-content:center}
+.quad div.q b{display:block;color:var(--ink);font-size:13.5px}
+.quad div.q.on{background:var(--ink);color:var(--panel)}.quad div.q.on b{color:var(--panel)}
+.sheet .cols{columns:2;column-gap:26px;font-size:12.8px;line-height:1.5;flex:1;min-height:0;overflow:hidden;-webkit-mask-image:linear-gradient(#000 90%,transparent);mask-image:linear-gradient(#000 90%,transparent)}
+.sheet h4{margin:10px 0 3px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--acc2);break-after:avoid}
+.sheet p,.sheet li{margin:0 0 3px}.sheet ul{margin:0;padding-left:17px}
+.dark{background:var(--side);color:var(--sink);border-color:var(--side)}
+.dark .btn{color:var(--ink)}.dark .mut{color:#c4c1ba}.dark .eyebrow{color:#f0a58e}.dark h2,.dark h3{color:#fff}
+.stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat3 div{background:var(--side2);border-radius:10px;padding:10px}
+.stat3 b{font-family:var(--display);font-size:24px;display:block;line-height:1.1;color:#fff}
+.stat3 small{font-size:11.5px;color:#b9b6ae;line-height:1.3;display:block}
+.flow4{display:grid;gap:8px}
+.flow4 div{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:start}
+.flow4 .n{width:30px;height:30px;border-radius:9px;background:var(--accs);color:var(--acc2);display:grid;place-items:center;font-weight:800}
+.flow4 b{font-size:13.5px}.flow4 small{display:block;color:var(--ink2);font-size:12.5px;line-height:1.35}
+.modal{position:fixed;inset:0;z-index:40;background:rgba(21,23,31,.5);display:grid;place-items:center;padding:16px;animation:fade .2s ease}
+.modal .box{background:var(--panel);border-radius:16px;max-width:580px;width:100%;max-height:calc(100dvh - 32px);overflow:auto;padding:22px;display:flex;flex-direction:column;gap:12px;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:pop .35s cubic-bezier(.2,.9,.3,1.2)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--panel);padding:9px 16px;border-radius:10px;font-weight:600;font-size:13px;z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:calc(100vw - 32px)}
+.banner{background:var(--accs);color:var(--acc2);border-radius:10px;padding:8px 12px;font-size:13px;font-weight:600;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.center{display:grid;place-items:center;text-align:center}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;min-height:0}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;min-height:0}
+.codebox{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--sunk);border-radius:9px;padding:8px 10px;font-size:12.5px;overflow-wrap:anywhere;flex:1;min-width:0}
+.bigcode{font-family:var(--display);font-size:40px;letter-spacing:.12em;font-weight:600;line-height:1}
+.tpl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.tpl button{border:1.5px solid var(--line);background:var(--panel);border-radius:10px;padding:8px;text-align:left;font-size:12.5px;font-weight:600}
+.tpl button small{display:block;font-weight:500;color:var(--ink3);font-size:11.5px}
+.tpl button[aria-pressed="true"]{border-color:var(--acc);background:var(--accs)}
+.crit{width:100%;border-collapse:collapse;font-size:13px}
+.crit th,.crit td{padding:6px 8px;border-bottom:1px solid var(--line2);text-align:center}
+.crit th:first-child,.crit td:first-child{text-align:left}
+.crit select{padding:3px 4px;font-size:12.5px;border-radius:7px}
+.crit tr.tot td{font-weight:700;border-bottom:0}
+
+/* ---------- 3D motion ---------- */
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes pop{from{opacity:0;transform:perspective(900px) rotateX(-14deg) translateY(16px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes enter{from{opacity:0;transform:perspective(1200px) rotateX(8deg) translateY(14px)}to{opacity:1;transform:none}}
+.enter>.page>*,.enter>.page>.g2>*,.enter>.page>.g3>*{animation:enter .55s cubic-bezier(.2,.8,.2,1) both}
+.enter>.page>*:nth-child(2),.enter>.page>.g2>*:nth-child(2),.enter>.page>.g3>*:nth-child(2){animation-delay:.06s}
+.enter>.page>*:nth-child(3),.enter>.page>.g3>*:nth-child(3){animation-delay:.12s}
+.tilt{transition:transform .25s ease,box-shadow .25s ease;transform-style:preserve-3d;will-change:transform}
+.scene{position:relative;perspective:1100px;perspective-origin:50% 30%;overflow:hidden;min-height:0}
+.floor{position:absolute;left:50%;top:56%;width:0;height:0;transform-style:preserve-3d;transform:rotateX(60deg) rotateZ(-38deg)}
+.spin .floor{animation:spin 26s linear infinite}
+@keyframes spin{from{transform:rotateX(60deg) rotateZ(-38deg)}to{transform:rotateX(60deg) rotateZ(322deg)}}
+.plate{position:absolute;transform-style:preserve-3d;border-radius:50%}
+.box{position:absolute;transform-style:preserve-3d}
+.box .f{position:absolute;left:0;top:0;backface-visibility:visible}
+.box.grow{animation:grow 1.1s cubic-bezier(.2,.9,.25,1.1) both}
+@keyframes grow{from{transform:var(--pos) scale3d(1,1,.02)}to{transform:var(--pos) scale3d(1,1,1)}}
+.b3leg{display:flex;flex-wrap:wrap;gap:4px 14px;justify-content:center;font-size:12.5px;color:var(--ink2)}.b3leg i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px}.b3leg b{color:var(--ink);margin-left:2px}
+.lbl3{position:absolute;transform-style:preserve-3d;white-space:nowrap;font-weight:700;font-size:12px;pointer-events:none}
+.pulse{position:absolute;border-radius:50%;border:3px solid var(--acc);animation:ring 2.6s ease-out infinite}
+@keyframes ring{0%{transform:translateZ(2px) scale(.3);opacity:.9}100%{transform:translateZ(2px) scale(2.6);opacity:0}}
+.bob{animation:bob 3.2s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateZ(var(--z,0px))}50%{transform:translateZ(calc(var(--z,0px) + 14px))}}
+.flip{perspective:900px;border:0;background:none;padding:0;text-align:left;min-height:0;display:block;width:100%;height:100%}
+.flip .in{display:block;position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.flip[aria-pressed="true"] .in{transform:rotateY(180deg)}
+.flip .fc{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:12px;padding:10px 12px;border:1px solid var(--line2);background:var(--panel);display:flex;flex-direction:column;gap:3px;overflow:hidden}
+.flip .fc.back{transform:rotateY(180deg);background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.flip b{font-size:13px;line-height:1.25}.flip small{font-size:11.5px;line-height:1.3;color:var(--ink2);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}.flip .fc{padding:9px 10px}.flip .back small{color:#d9d6cf}
+.flip .hintf{margin-top:auto;font-size:11px;color:var(--ink3)}
+.drawer{position:fixed;inset:0;z-index:45;background:rgba(21,23,31,.35);display:flex;justify-content:flex-end;perspective:1400px;animation:fade .2s}
+.drawer .dr{width:min(480px,100vw);height:100%;background:var(--panel);box-shadow:-20px 0 60px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:12px;padding:20px;overflow:auto;transform-origin:right center;animation:slide .45s cubic-bezier(.2,.85,.25,1)}
+@keyframes slide{from{transform:rotateY(-18deg) translateX(60px);opacity:0}to{transform:none;opacity:1}}
+.aitool{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.aitool .row b{font-size:14px}
+.aires{background:var(--sunk);border-radius:10px;padding:10px 12px;font-size:13px;display:grid;gap:6px}
+.aires ul{margin:0;padding-left:18px}.aires li{margin:2px 0}
+.src{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.spinner{width:16px;height:16px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:rot .8s linear infinite;display:inline-block}
+@keyframes rot{to{transform:rotate(360deg)}}
+
+/* ---------- landing ---------- */
+.landing{height:100dvh;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);background:var(--bg)}
+.lp-l{padding:clamp(20px,4vw,52px);display:flex;flex-direction:column;gap:18px;justify-content:center;min-height:0;overflow:hidden}
+.lp-l h1{font-size:clamp(30px,3.6vw,50px);line-height:1.05;letter-spacing:-.02em}
+.lp-l h1 em{font-style:italic;color:var(--acc)}
+.lp-l .lead{font-size:clamp(14px,1.2vw,16.5px);color:var(--ink2);max-width:56ch}
+.steps3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.steps3 .s{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 12px}
+.steps3 .s b{display:flex;align-items:center;gap:7px;font-size:14px}
+.steps3 .s b i{width:20px;height:20px;border-radius:6px;background:var(--acc);color:#fff;font-style:normal;display:grid;place-items:center;font-size:11px}
+.steps3 .s small{display:block;color:var(--ink2);font-size:12.5px;margin-top:3px}
+.stats{display:flex;gap:18px;flex-wrap:wrap;font-size:12.5px;color:var(--ink2)}
+.stats b{font-family:var(--display);font-size:22px;color:var(--ink);display:block;line-height:1}
+.lp-r{background:radial-gradient(800px 500px at 60% 30%,#2b2f45,#15171f 70%);position:relative;overflow:hidden;color:#fff}
+.lp-r .cap{position:absolute;left:28px;right:28px;bottom:24px;display:flex;justify-content:space-between;gap:16px;align-items:flex-end;flex-wrap:wrap}
+.lp-r .cap b{font-family:var(--display);font-size:20px;display:block}
+.lp-r .cap small{color:#b9b6ae;font-size:13px}
+.legend{display:flex;gap:12px;font-size:12px;color:#d6d3cc}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+@media (max-width:900px){
+  body{overflow:auto}.shell{height:auto;min-height:100dvh;grid-template-columns:minmax(0,1fr);grid-template-rows:auto 1fr}
+  .side{flex-direction:row;flex-wrap:wrap;align-items:center;padding:10px 12px;gap:4px}
+  .side .navlabel,.side .sp,.me,.status,.brand small,.side select{display:none}.brand{padding:0 8px 0 0}
+  .nav{width:auto;padding:7px 10px}.nav.sub{display:none}.switch{width:auto}
+  .main{padding:14px 16px}
+  .page,.g2,.g3,.kpis{display:flex;flex-direction:column}
+  .panel{overflow:visible}.sheet .cols{columns:1;-webkit-mask-image:none;mask-image:none}
+  table.t td.title{max-width:150px}
+  .stat3,.tpl,.steps3{grid-template-columns:1fr}
+  .landing{height:auto;min-height:100dvh;grid-template-columns:1fr}.lp-r{min-height:380px}
+  .flip{min-height:120px}
+}
+@media (max-height:800px) and (min-width:901px){.check small{display:none}.check{padding:4px 6px}.panel{padding:13px 14px}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+@media print{.side,.no-print{display:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="layer"></div>
+<script>
+(function(){
+'use strict';
+var $=function(s,r){return (r||document).querySelector(s)};
+var rid=function(){return Math.random().toString(36).slice(2,10)};
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+var clamp=function(v,a,b){return Math.max(a,Math.min(b,v))};
+var avg=function(a){return a.length?a.reduce(function(x,y){return x+y},0)/a.length:0};
+var LS={get:function(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del:function(k){try{localStorage.removeItem(k)}catch(e){}}};
+var IC={
+ home:'<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+ users:'<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
+ book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5V21h16"/>',
+ inbox:'<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+ check:'<polyline points="20 6 9 17 4 12"/>',
+ checks:'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',
+ doc:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>',
+ plus:'<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+ lock:'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+ eye:'<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+ alert:'<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+ spark:'<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 3v4M17 5h4"/>',
+ arrow:'<line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>',
+ swap:'<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>',
+ mic:'<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/>',
+ flag:'<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>',
+ gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+ copy:'<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+ out:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
+ print:'<polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
+ grid:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>'
+};
+var ic=function(n,s){return '<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"'+(s?' style="width:'+s+'px;height:'+s+'px"':'')+'>'+IC[n]+'</svg>'};
+var MARK='<span class="mark"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 3 7v10l9 5 9-5V7z"/><path d="M12 22V12M3 7l9 5 9-5"/></svg></span>';
+
+/* ============ content: from our presentation ============ */
+var TRAPS={
+ groupthink:{name:'Groupthink',q:'We agree too fast and nobody wants to be the one who disagrees.',fix:'Name a devil’s advocate and let the leader speak last.',src:'Janis, 1972',act:'Appoint a devil’s advocate and let the leader speak last'},
+ confirm:{name:'Confirmation bias',q:'We collect evidence that supports what we already believe.',fix:'Ask: what would prove us wrong, and has anyone looked for it?',src:'Kahneman, 2011',act:'List what would prove us wrong and assign someone to look for it'},
+ anchor:{name:'Anchoring',q:'The first number or opinion set the tone for everything after it.',fix:'Collect private views before anyone talks. The Share step does this.',src:'Tversky & Kahneman, 1974',act:'Collect private views before every discussion'},
+ hidden:{name:'Hidden knowledge',q:'People repeat what everyone already knows. Unique facts stay unsaid.',fix:'Ask each person: what do you know that others might not?',src:'Stasser & Titus, 1985',act:'Ask each person what they know that others might not'},
+ overconf:{name:'Overconfidence',q:'We feel more certain than the evidence allows.',fix:'Run a pre-mortem: imagine it failed, then write down why.',src:'Klein, 2007',act:'Run a pre-mortem before committing'},
+ authority:{name:'Deferring to the boss',q:'People hold back because the most senior person already has a view.',fix:'Collect input privately first. The most senior person speaks last.',src:'Edmondson, 1999',act:'Collect input privately first; senior voice speaks last'}
+};
+var TRAP_IDS=['groupthink','confirm','anchor','hidden','overconf','authority'];
+var SAFETY=['On this team it is safe to disagree with the manager.','Mistakes and warnings are discussed openly, not held against people.','My different view is welcome, even if it slows us down.'];
+var DEFOPTS=[{id:'go',label:'Go',sub:'Do it'},{id:'hold',label:'Hold',sub:'Not yet'},{id:'no',label:'No-go',sub:'Don’t do it'}];
+var OPTCOL={go:'var(--go)',hold:'var(--hold)',no:'var(--no)'},XCOL=['#3b5bcc','#8a4fd0','#127e8f','#c2417a','#5a6b2f'];
+var EV=['None','Some','Strong'],LV=['Low','Medium','High'];
+var STAGES=['share','challenge','decide','decided','learned'];
+var STAGE_LABEL={share:'Share',challenge:'Challenge',decide:'Decide',decided:'Decided',learned:'Learned'};
+var COLORS=['#e4572e','#3b5bcc','#2e9e6a','#8a4fd0','#d99a1c','#127e8f','#c2417a','#5a6b2f'];
+var WOOLLEY=[['Even speaking turns',.41],['Social sensitivity',.26],['Share of women',.23],['Max. intelligence',.19],['Avg. intelligence',.15]];
+var TEMPLATES={
+ custom:{name:'Blank',sub:'Start from scratch',title:'',q:'',opts:null,as:[],rk:[]},
+ launch:{name:'Product launch',sub:'Go / Hold / No-go',title:'Launch the new product line',q:'Should we launch it nationally next quarter?',opts:null,
+   as:[['Customers who like it in tests will actually buy it',true],['We can deliver on time and at quality',false],['Loyal customers will accept the change',true]],
+   rk:[['Customers react badly to the change',2,3],['Launch slips because of supply',2,2]]},
+ pricing:{name:'Price change',sub:'Raise / Keep / Test first',title:'Change our pricing',q:'Should we raise prices by 8% from next month?',opts:[{id:'o1',label:'Raise',sub:'All customers'},{id:'o2',label:'Test first',sub:'One segment'},{id:'o3',label:'Keep',sub:'No change'}],
+   as:[['Customers value us enough to accept the new price',true],['Competitors will not undercut us',false]],rk:[['Churn among price-sensitive customers',2,3],['Damage to brand perception',1,2]]},
+ hire:{name:'Hiring',sub:'Candidate A / B / keep looking',title:'Choose the new team lead',q:'Who should we hire as team lead?',opts:[{id:'o1',label:'Candidate A',sub:''},{id:'o2',label:'Candidate B',sub:''},{id:'o3',label:'Keep looking',sub:''}],
+   as:[['The interview shows how they will really work with the team',true],['The team will accept an external hire',false]],rk:[['Bad fit discovered after 3 months',2,3],['Losing the runner-up for good',2,1]]},
+ invest:{name:'Investment',sub:'Invest / Pilot / Don’t',title:'Invest in the new system',q:'Should we invest the budget in the new system this year?',opts:[{id:'o1',label:'Invest',sub:'Full budget'},{id:'o2',label:'Pilot',sub:'Small first'},{id:'o3',label:'Don’t invest',sub:''}],
+   as:[['The benefits in the business case will really happen',true],['The team has time to adopt it',false]],rk:[['Costs run over budget',2,2],['Low adoption by users',2,3]]},
+ strategy:{name:'Strategy change',sub:'Change / Phase in / Stay',title:'Change our market focus',q:'Should we shift our focus to the new customer segment?',opts:[{id:'o1',label:'Change now',sub:''},{id:'o2',label:'Phase in',sub:''},{id:'o3',label:'Stay',sub:''}],
+   as:[['The new segment is as large as we think',true],['Our current customers will not feel abandoned',true]],rk:[['Losing current customers before winning new ones',2,3]]}
+};
+
+/* ============ state ============ */
+var SES=null; // session: {mode:'net'|'local', code, key, mid, tok, name, team}
+var ISMGR=false,UID=null,MYNAME='',TEAM='',AION=false,ONLINE=true;
+var DEC={},NOTES={},PEOPLE={},NAMES={};
+var VIEWAS='manager';
+var UI={page:'home',dec:null,tab:'share',sub:'dissent',pg:{},confirm:{},enter:true};
+var FORM={},EXEC={},AIRES={},AIBUSY={},PLAYED={},COACH={};
+var DIRTY={room:false,me:false},FT=null,INFL=false,LASTSIG='';
+
+/* ============ backend ============ */
+function api(method,path,bodyObj){
+  return fetch('/api/'+path,{method:method,headers:{'content-type':'application/json'},body:bodyObj?JSON.stringify(bodyObj):undefined,cache:'no-store'})
+   .then(function(r){return r.json().catch(function(){return {}}).then(function(j){if(!r.ok){var e=new Error(j.error||('Error '+r.status));e.status=r.status;throw e}return j})});
+}
+function qs(o){return Object.keys(o).map(function(k){return k+'='+encodeURIComponent(o[k])}).join('&')}
+function authQ(){return ISMGR&&SES.key?qs({code:SES.code,key:SES.key}):qs({code:SES.code,mid:SES.mid,tok:SES.tok})}
+function put(path){if(path.indexOf('people/')===0)DIRTY.me=true;else DIRTY.room=true;clearTimeout(FT);FT=setTimeout(flush,450)}
+function flush(){
+  if(INFL){FT=setTimeout(flush,300);return}
+  if(SES.mode==='local'){saveLocal();DIRTY.room=DIRTY.me=false;return}
+  var jobs=[],was={room:DIRTY.room,me:DIRTY.me};INFL=true;
+  if(DIRTY.room&&ISMGR){DIRTY.room=false;jobs.push(api('PUT','room?'+qs({code:SES.code,key:SES.key}),{decisions:DEC,notes:NOTES}))}
+  if(DIRTY.me&&PEOPLE[UID]){DIRTY.me=false;var me=PEOPLE[UID];jobs.push(api('PUT','member?'+(ISMGR&&SES.key?qs({code:SES.code,mid:SES.mid,key:SES.key}):qs({code:SES.code,mid:SES.mid,tok:SES.tok})),{d:me.d||{},done:me.done||{}}))}
+  Promise.all(jobs).then(function(){INFL=false;if(!ONLINE){ONLINE=true;renderSide()}},function(e){INFL=false;
+    if(was.room)DIRTY.room=true;if(was.me)DIRTY.me=true;ONLINE=false;renderSide();
+    toast(e.status===403?'You do not have permission to save this.':'Could not save. Retrying…');if(e.status!==403)FT=setTimeout(flush,3000)});
+}
+function poll(){
+  if(!SES||SES.mode!=='net'||document.hidden)return;
+  api('GET','room?'+authQ()).then(function(r){
+    ONLINE=true;AION=!!r.ai;TEAM=r.room.team||TEAM;
+    var sig=JSON.stringify([r.room.decisions,r.room.notes,r.members,r.me]);
+    if(sig===LASTSIG)return;LASTSIG=sig;
+    if(!DIRTY.room&&!INFL){DEC=r.room.decisions||{};if(r.room.notes)NOTES=r.room.notes}
+    if(r.members){var keep=DIRTY.me?PEOPLE[UID]:null;PEOPLE={};r.members.forEach(function(m){PEOPLE[m.mid]=m;NAMES[m.mid]=m.name});if(keep)PEOPLE[UID]=keep}
+    if(r.me&&!DIRTY.me){PEOPLE[UID]=r.me;NAMES[UID]=r.me.name}
+    softRender();
+  }).catch(function(e){if(e.status===403){toast('This room link is no longer valid on this device.');leave();return}ONLINE=false;renderSide()});
+}
+setInterval(poll,3500);
+document.addEventListener('visibilitychange',function(){if(!document.hidden)poll()});
+/* local (single device) mode */
+var LKEY='decision-room.local.v1';
+function loadLocal(){var o=LS.get(LKEY,null);if(!o){o={team:'My team',decisions:{},notes:{},members:{m_local:{mid:'m_local',name:'Manager',role:'manager',joined:Date.now(),d:{},done:{}}}};LS.set(LKEY,o)}
+  DEC=o.decisions||{};NOTES=o.notes||{};PEOPLE=o.members||{};TEAM=o.team||'My team';Object.keys(PEOPLE).forEach(function(k){NAMES[k]=PEOPLE[k].name})}
+function saveLocal(){LS.set(LKEY,{team:TEAM,decisions:DEC,notes:NOTES,members:PEOPLE})}
+
+function saveDec(d){d.updated=Date.now();DEC[d.id]=d;put('decisions/'+d.id)}
+function saveNotes(id){put('notes/'+id)}
+function myDoc(){if(!PEOPLE[UID])PEOPLE[UID]={mid:UID,name:MYNAME,joined:Date.now(),d:{},done:{}};var p=PEOPLE[UID];p.d=p.d||{};p.done=p.done||{};return p}
+function saveMe(){myDoc();put('people/'+UID)}
+function notesOf(id){if(!NOTES[id])NOTES[id]={};var n=NOTES[id];['concerns','assumptions','risks','guests','criteria'].forEach(function(k){n[k]=n[k]||[]});['ans','air','turns','scores'].forEach(function(k){n[k]=n[k]||{}});return n}
+
+/* ============ names ============ */
+function nm(id){if(!id)return 'Unassigned';if(id==='_mgr')return 'Manager';if(id.indexOf('g:')===0)return id.slice(2);var n=NAMES[id]||(PEOPLE[id]&&PEOPLE[id].name)||'Team member';return id===UID?n+' (you)':n}
+function bare(id){return nm(id).replace(' (you)','')}
+function initials(id){var p=bare(id).trim().split(/\s+/);return ((p[0]||'?')[0]+((p[1]||'')[0]||'')).toUpperCase()}
+function colorOf(id){var h=0;id=String(id);for(var i=0;i<id.length;i++)h=(h*31+id.charCodeAt(i))>>>0;return COLORS[h%COLORS.length]}
+function avatar(id,size){return '<span class="av" style="background:'+colorOf(id)+(size?';width:'+size+'px;height:'+size+'px;font-size:'+Math.round(size*.4)+'px':'')+'">'+esc(initials(id))+'</span>'}
+
+/* ============ model ============ */
+function optsOf(d){return (d&&d.options&&d.options.length)?d.options:DEFOPTS}
+function optColor(d,id){if(OPTCOL[id])return OPTCOL[id];var i=optsOf(d).map(function(o){return o.id}).indexOf(id);return XCOL[Math.max(0,i)%XCOL.length]}
+function optLabel(d,id){var o=optsOf(d).filter(function(x){return x.id===id})[0];return o?o.label:'–'}
+function decList(){return Object.keys(DEC).map(function(k){return DEC[k]}).filter(function(d){return d&&d.title}).sort(function(a,b){return (b.created||0)-(a.created||0)})}
+function members(){return Object.keys(PEOPLE).filter(function(k){return PEOPLE[k]&&PEOPLE[k].joined})}
+function voters(id){return members().filter(function(m){var p=PEOPLE[m];return p.role!=='manager'||(p.d&&p.d[id]&&p.d[id].vote)})}
+function inputsFor(id){return members().map(function(u){var x=PEOPLE[u].d&&PEOPLE[u].d[id];return x?{uid:u,x:x}:null}).filter(Boolean)}
+function stageIdx(d){return STAGES.indexOf(d.stage||'share')}
+function liveAgg(id){
+  var d=DEC[id],ins=inputsFor(id),sh=ins.filter(function(i){return i.x.vote}),v={},tr={};
+  optsOf(d).forEach(function(o){v[o.id]=0});
+  sh.forEach(function(i){v[i.x.vote]=(v[i.x.vote]||0)+1});
+  ins.forEach(function(i){(i.x.traps||[]).forEach(function(t){tr[t]=(tr[t]||0)+1})});
+  var pick=function(k){return ins.filter(function(i){return (i.x[k]||'').trim()}).map(function(i){return {t:i.x[k].trim(),by:i.uid}})};
+  var sa=sh.filter(function(i){return i.x.sa&&i.x.sa.every(function(z){return z>0})}).map(function(i){return avg(i.x.sa)});
+  var vals=Object.keys(v).map(function(k){return v[k]}),mx=Math.max.apply(null,vals.concat([0])),n=sh.length,top=Object.keys(v).sort(function(a,b){return v[b]-v[a]})[0];
+  return {n:n,team:voters(id).length,votes:v,conf:avg(sh.map(function(i){return i.x.conf||0})),safety:avg(sa),safeN:sa.length,
+    know:pick('know'),why:pick('why'),pre:pick('pre'),concern:pick('concern'),mind:pick('mind'),traps:tr,top:n?mx/n:0,topId:top,
+    challengers:ins.filter(function(i){return i.x.chTs}).length,answered:sh.map(function(i){return i.uid})};
+}
+function publicResults(id){var a=liveAgg(id),strip=function(l){return l.map(function(x){return x.t})};
+  return {n:a.n,team:a.team,votes:a.votes,conf:a.conf,safety:a.safety,safeN:a.safeN,know:strip(a.know),pre:strip(a.pre),concern:strip(a.concern),mind:strip(a.mind),traps:a.traps,challengers:a.challengers,at:Date.now()}}
+function challenges(id){
+  var a=liveAgg(id),n=notesOf(id),out=[],d=DEC[id]||{};
+  a.concern.forEach(function(c){out.push({key:c.by+':concern',kind:'Concern',text:c.t,by:c.by})});
+  a.pre.forEach(function(c){out.push({key:c.by+':pre',kind:'Pre-mortem',text:c.t,by:c.by})});
+  a.mind.forEach(function(c){out.push({key:c.by+':mind',kind:'Would change my mind',text:c.t,by:c.by})});
+  n.concerns.forEach(function(c){out.push({key:'m:'+c.id,kind:c.kind||'Raised in meeting',text:c.text,by:c.by||'_mgr',own:true,id:c.id})});
+  out.forEach(function(c){c.done=!!n.ans[c.key];c.anon=d.anonymous&&!c.own});
+  return out;
+}
+function participants(id){var n=notesOf(id);return members().concat(n.guests.map(function(g){return 'g:'+g}))}
+function evenness(id){var n=notesOf(id),ps=participants(id),tot=0;ps.forEach(function(k){tot+=n.air[k]||0});var N=ps.length;if(N<2||tot<60000)return null;var tv=0;ps.forEach(function(k){tv+=Math.abs((n.air[k]||0)/tot-1/N)});tv/=2;return Math.round(100*(1-tv/(1-1/N)))}
+function gates(id){
+  var d=DEC[id],a=liveAgg(id),n=notesOf(id),ch=challenges(id),open=ch.filter(function(c){return !c.done}).length,ev=evenness(id);
+  var badA=n.assumptions.filter(function(x){return x.critical&&x.ev<2}).length,badR=n.risks.filter(function(r){return r.l*r.i>=6&&!r.undo&&!(r.fix||'').trim()}).length;
+  var need=Math.max(2,Math.ceil(a.team*0.6));
+  return [
+   {k:'share',tab:'share',label:'Private views collected',ok:a.n>=need,d:a.n+' of '+a.team+' answered (need '+need+')'},
+   {k:'safe',tab:'share',label:'It is safe to disagree',ok:a.safeN>=2&&a.safety>=3.5,d:a.safeN?('Safety '+a.safety.toFixed(1)+' / 5'):'Comes from the Share answers'},
+   {k:'devil',tab:'challenge',sub:'dissent',label:'Someone argued the other side',ok:!!d.devil,d:d.devil?(bare(d.devil)+' is devil’s advocate'):'Assign a devil’s advocate'},
+   {k:'answered',tab:'challenge',sub:'dissent',label:'Every challenge is answered',ok:ch.length>0&&open===0,d:ch.length?(open?open+' still open':'All '+ch.length+' answered'):'No challenges yet. Zero dissent is a warning sign'},
+   {k:'assume',tab:'challenge',sub:'evidence',label:'Critical assumptions are backed',ok:n.assumptions.length>0&&badA===0,d:n.assumptions.length?(badA?badA+' critical with weak evidence':'Evidence is strong'):'List what must be true'},
+   {k:'risk',tab:'challenge',sub:'evidence',label:'High risks have an answer',ok:n.risks.length>0&&badR===0,d:n.risks.length?(badR?badR+' high risk without a fix':'Every high risk is covered'):'Name what could go wrong'},
+   {k:'heard',tab:'challenge',sub:'meeting',label:'Everyone was heard',ok:ev!==null&&ev>=60,d:ev===null?'Track who speaks in the meeting':'Airtime balance '+ev+'%'},
+   {k:'trip',tab:'decide',label:'We know what would change our call',ok:(d.tripwire||'').trim().length>3,d:(d.tripwire||'').trim().length>3?'Tripwire written':'Write the tripwire'}
+  ];
+}
+function score(id){var g=gates(id),n=g.filter(function(x){return x.ok}).length;return {n:n,of:g.length,pct:Math.round(100*n/g.length)}}
+function scoreColor(s){return s.n===s.of?'var(--ok)':(s.n>=5?'var(--hold)':'var(--acc)')}
+function alerts(id){
+  var d=DEC[id],a=liveAgg(id),n=notesOf(id),out=[],ev=evenness(id),push=function(t,why,sev){out.push({t:t,tr:TRAPS[t],why:why,sev:sev})};
+  if(a.n>=3&&a.top>=.85)push('groupthink',Math.round(a.top*100)+'% chose '+optLabel(d,a.topId)+(a.conf>=4?', with high confidence':''),'bad');
+  if(a.n>=2&&a.conf>=4&&(a.pre.length===0||n.assumptions.some(function(x){return x.critical&&x.ev<2})))push('overconf','Confidence '+a.conf.toFixed(1)+'/5 but '+(a.pre.length?'critical assumptions are weak':'no pre-mortem yet'),'warn');
+  if(a.safeN>=2&&a.safety<3.5)push('authority','Psychological safety is '+a.safety.toFixed(1)+'/5','bad');
+  if(a.n>=2&&a.know.length<Math.ceil(a.n/2))push('hidden','Only '+a.know.length+' of '+a.n+' shared something others might not know','warn');
+  if(ev!==null&&ev<60)push('anchor','One voice dominated the meeting (balance '+ev+'%)','warn');
+  TRAP_IDS.forEach(function(t){var c=a.traps[t]||0;if(c>=2&&!out.some(function(o){return o.t===t}))push(t,c+' teammates flagged this','warn')});
+  return out;
+}
+var addDays=function(n){var d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
+var fmtD=function(s){if(!s)return '';var d=new Date(String(s).length===10?s+'T12:00:00':s);return d.toLocaleDateString(undefined,{day:'numeric',month:'short'})};
+var daysTo=function(s){return s?Math.max(1,Math.round((new Date(s+'T12:00:00')-new Date())/864e5)):30};
+function suggestions(id){
+  var d=DEC[id],out=[],g=function(k,t,src,days,owner){out.push({key:k,text:t,src:src,due:addDays(days),owner:owner||'_mgr'})},n=notesOf(id);
+  challenges(id).filter(function(c){return !c.done}).slice(0,3).forEach(function(c){g('ch:'+c.key,'Answer the challenge: “'+c.text+'”','Challenge',3)});
+  n.assumptions.filter(function(a){return a.critical&&a.ev<2}).slice(0,3).forEach(function(a){g('as:'+a.id,'Find evidence for: “'+a.text+'”','Assumption',7,d.devil||'_mgr')});
+  n.risks.filter(function(r){return r.l*r.i>=6&&!r.undo&&!(r.fix||'').trim()}).slice(0,3).forEach(function(r){g('rk:'+r.id,'Prepare a fix or undo plan for: “'+r.text+'”','Risk',7)});
+  alerts(id).slice(0,2).forEach(function(al){g('tr:'+al.t,al.tr.act,'Mind trap',3)});
+  if(!d.devil)g('devil','Assign a devil’s advocate for the next discussion','Challenge',1);
+  if(d.door==='one')g('pilot','Hard to undo: run a small pilot before full commitment','Risk',14);
+  if((d.tripwire||'').trim())g('trip','Check the tripwire: '+d.tripwire.trim(),'Tripwire',daysTo(d.review));
+  g('learn','Review the outcome with the team and record the lesson','Learn',daysTo(d.review));
+  return out;
+}
+function genPlan(id){var d=DEC[id];d.plan=d.plan||[];var have={},add=0;d.plan.forEach(function(p){have[p.key]=1});
+  suggestions(id).forEach(function(s){if(!have[s.key]){d.plan.push({id:rid(),key:s.key,text:s.text,src:s.src,owner:s.owner,due:s.due});add++}});saveDec(d);return add}
+function taskDone(t){for(var u in PEOPLE){if(PEOPLE[u]&&PEOPLE[u].done&&PEOPLE[u].done[t.id])return true}return !!t.done}
+function critTotals(id){var d=DEC[id],n=notesOf(id),W=n.criteria.reduce(function(s,c){return s+(+c.w||1)},0);
+  return optsOf(d).map(function(o){var sc=n.scores[o.id]||{},t=0;n.criteria.forEach(function(c){t+=(+c.w||1)*(+sc[c.id]||0)});return {o:o,pct:W?Math.round(100*t/(W*5)):0}})}
+
+/* ============ report ============ */
+function outcomeLabel(o){if(!o)return '';return o.process==='good'?(o.result==='good'?'Earned success':'Bad luck'):(o.result==='good'?'Lucky outcome':'Avoidable failure')}
+function reportMD(id,compact){
+  var d=DEC[id],a=liveAgg(id),n=notesOf(id),g=gates(id),sc=score(id),L=[],lim=function(arr,k){return compact&&arr.length>k?arr.slice(0,k):arr},more=function(arr,k){if(compact&&arr.length>k)L.push('- +'+(arr.length-k)+' more in the full report')};
+  var who=function(by){return d.anonymous?'':' ('+bare(by)+')'};
+  L.push('# Decision report: '+d.title);
+  L.push(new Date().toLocaleDateString(undefined,{day:'numeric',month:'long',year:'numeric'})+' · '+TEAM+' · Stage: '+STAGE_LABEL[d.stage||'share']+(d.anonymous?' · Anonymous input':''));
+  if(d.question)L.push('**Question:** '+d.question);
+  if(EXEC[id])L.push('**Summary:** '+EXEC[id]);
+  L.push('');L.push('## Verdict');
+  L.push(sc.n===sc.of?'Ready to decide: all '+sc.of+' checks are clear.':sc.n+' of '+sc.of+' checks are clear.'+(d.door==='one'?' This is hard to undo, so close the open checks first.':''));
+  if(d.call)L.push('**Decision: '+optLabel(d,d.call)+'.**'+(d.reason?' '+d.reason:''));
+  g.forEach(function(x){L.push('- '+(x.ok?'Clear':'Open')+': '+x.label+'. '+x.d)});
+  L.push('');L.push('## Share: what individuals brought');
+  if(a.n){L.push('Private vote ('+a.n+' of '+a.team+'): '+optsOf(d).map(function(o){return o.label+' '+(a.votes[o.id]||0)}).join(', ')+'. Confidence '+a.conf.toFixed(1)+'/5. Psychological safety '+(a.safeN?a.safety.toFixed(1)+'/5':'n/a')+'.');
+    if(a.know.length){L.push('');L.push('What people knew that others might not:');lim(a.know,3).forEach(function(k){L.push('- '+k.t+who(k.by))});more(a.know,3)}}
+  else L.push('No private views collected yet.');
+  L.push('');L.push('## Challenge: what the team pushed back on');
+  var ch=challenges(id);if(ch.length){lim(ch,4).forEach(function(c){L.push('- '+c.kind+': '+c.text+(c.anon?'':who(c.by))+' ['+(c.done?'answered':'OPEN')+']')});more(ch,4)}else L.push('No challenges raised.');
+  if(d.devil)L.push('- Devil’s advocate: '+bare(d.devil));
+  lim(n.assumptions,3).forEach(function(x){L.push('- Assumption: '+x.text+' [evidence: '+EV[x.ev]+(x.critical?', critical':'')+']')});
+  lim(n.risks,3).forEach(function(r){L.push('- Risk: '+r.text+' (score '+r.l*r.i+'/9'+(r.undo?', can be undone':'')+((r.fix||'').trim()?', fix: '+r.fix:'')+')')});
+  if(n.criteria.length){L.push('- Weighted criteria: '+critTotals(id).map(function(t){return t.o.label+' '+t.pct+'%'}).join(', '))}
+  var al=alerts(id);if(al.length){L.push('');L.push('Mind traps detected:');al.slice(0,3).forEach(function(x){L.push('- '+x.tr.name+': '+x.why+'. Counter-move: '+x.tr.fix)})}
+  L.push('');L.push('## Decide: what happens next');
+  L.push('- Can we undo it: '+(d.door==='one'?'hardly (one-way door)':'easily (two-way door)'));
+  L.push('- What would change our call: '+((d.tripwire||'').trim()||'not written yet'));
+  if(d.review)L.push('- Review date: '+fmtD(d.review));
+  var pl=d.plan||[];if(pl.length){lim(pl,5).forEach(function(p){L.push('- '+(taskDone(p)?'[done] ':'')+p.text+'. Owner: '+bare(p.owner)+'. Due '+fmtD(p.due))});more(pl,5)}
+  if(d.outcome&&d.outcome.result){L.push('');L.push('## Learn');L.push('Outcome: '+d.outcome.result+'. Process: '+(d.outcome.process==='good'?'sound':'weak')+'. Verdict: '+outcomeLabel(d.outcome)+'.');if(d.outcome.lesson)L.push('Lesson: '+d.outcome.lesson)}
+  L.push('');L.push('Method: private input before discussion, devil’s advocate, pre-mortem and balanced airtime. Woolley et al. (2010), Edmondson (1999), Klein (2007), Janis (1972).');
+  return L.join('\n');
+}
+function mdHTML(t){var o=[],ul=false,cl=function(){if(ul){o.push('</ul>');ul=false}},inl=function(s){return esc(s).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')};
+  t.split('\n').forEach(function(l){if(/^# /.test(l))return;if(/^## /.test(l)){cl();o.push('<h4>'+esc(l.slice(3))+'</h4>')}else if(/^- /.test(l)){if(!ul){o.push('<ul>');ul=true}o.push('<li>'+inl(l.slice(2))+'</li>')}else if(l.trim()){cl();o.push('<p>'+inl(l)+'</p>')}});cl();return o.join('')}
+
+/* ============ AI (Claude via the site's function) with built-in fallback ============ */
+function payloadOf(id){var d=DEC[id],a=liveAgg(id),n=notesOf(id),r=d.results||{};
+  var votes={};optsOf(d).forEach(function(o){votes[o.label]=(ISMGR?a.votes[o.id]:(r.votes||{})[o.id])||0});
+  return {title:d.title,question:d.question,context:d.context,options:optsOf(d).map(function(o){return o.label}),votes:votes,confidence:+(ISMGR?a.conf:(r.conf||0)).toFixed(1),
+    safety:+(ISMGR?a.safety:(r.safety||0)).toFixed(1),whatPeopleKnow:(ISMGR?a.know.map(function(x){return x.t}):r.know||[]).slice(0,12),reasons:(ISMGR?a.why.map(function(x){return x.t}):[]).slice(0,12),
+    challenges:(ISMGR?challenges(id).map(function(c){return c.kind+': '+c.text}):[]).slice(0,15),assumptions:n.assumptions.map(function(x){return x.text+' (evidence '+EV[x.ev]+')'}),
+    risks:n.risks.map(function(x){return x.text}),tripwire:d.tripwire||'',decision:d.call?optLabel(d,d.call):'',undo:d.door==='one'?'hard':'easy'}}
+function rules(task,id,extra){
+  var d=DEC[id],a=liveAgg(id),top=optLabel(d,a.topId),pct=Math.round(a.top*100);
+  if(task==='devil')return {arguments:[
+     'The evidence for “'+top+'” may measure the wrong thing. What matters to the people who are not in our data?',
+     a.n?pct+'% of the team chose '+top+'. Fast agreement can be groupthink, not proof.':'Nobody has voted yet, so the loudest early opinion may set the direction.',
+     d.door==='one'?'This is hard to undo. If we are wrong, the cost lasts much longer than the benefit of moving fast.':'If this is easy to undo, are we testing it small enough first?'],
+   questions:['What would we expect to see if '+top+' is the wrong call?','Who outside this team would disagree, and what do they know?','What is the cheapest test we can run before we commit?']};
+  if(task==='scan'){var al=alerts(id);return {traps:al.map(function(x){return {id:x.t,evidence:x.why,fix:x.tr.fix}}),overall:al.length?al.length+' warning sign'+(al.length>1?'s':'')+' found in the answers.':'No clear warning signs in the answers so far.'}}
+  if(task==='assume'){var t=TEMPLATES[d.template]||TEMPLATES.launch;return {assumptions:(t.as.length?t.as:TEMPLATES.launch.as).map(function(x){return {text:x[0],critical:x[1]}}).concat([{text:'The data we used reflects how people will really behave',critical:true}]),
+     risks:(t.rk.length?t.rk:TEMPLATES.launch.rk).map(function(x){return {text:x[0],l:x[1],i:x[2]}})}}
+  if(task==='plan')return {actions:suggestions(id).slice(0,6).map(function(s){return {text:s.text,days:Math.max(1,Math.round((new Date(s.due)-new Date())/864e5))}})};
+  if(task==='summary'){var sc=score(id),g=gates(id).filter(function(x){return !x.ok});return {summary:(sc.n===sc.of?'The team looks ready: all '+sc.of+' checks are clear.':'The team is not ready yet: '+sc.n+' of '+sc.of+' checks are clear.')+(a.n?' '+a.n+' people voted privately and most chose '+top+'.':'')+(g.length?' The main open issue: '+g[0].label.toLowerCase()+'. Next step: '+g[0].d.toLowerCase()+'.':' Next step: publish the decision and its tripwire.')}}
+  if(task==='coach'){var Q=['What do you know about this that the rest of the team might not?','What would have to be true for the opposite choice to be right?','If you had to bet your own money, would your confidence stay the same?','Who will be affected by this decision but is not in the room?','What evidence would change your mind?'];return {question:Q[(extra||0)%Q.length]}}
+  return {};
+}
+function runAI(task,id,extra){
+  var key=id+':'+task;AIBUSY[key]=true;render();
+  var done=function(src,res){AIBUSY[key]=false;AIRES[id]=AIRES[id]||{};AIRES[id][task]={src:src,data:res};if(task==='summary'&&res.summary)EXEC[id]=res.summary;if(task==='coach')COACH[id]=res.question;render()};
+  if(SES.mode!=='net'||!AION){setTimeout(function(){done('rules',rules(task,id,extra))},350);return}
+  var body={code:SES.code,task:task,payload:task==='summary'?{report:reportMD(id,false)}:(task==='coach'?{question:DEC[id].question,myDraft:FORM[id]||{}}:payloadOf(id))};
+  if(ISMGR&&SES.key)body.key=SES.key;else{body.mid=SES.mid;body.tok=SES.tok}
+  api('POST','ai',body).then(function(r){done('ai',r.result||{})}).catch(function(e){toast(e.status===429?'Daily AI limit reached. Using built-in rules.':'AI unavailable. Using built-in rules.');done('rules',rules(task,id,extra))});
+}
+
+/* ============ UI helpers ============ */
+function toast(m){document.querySelectorAll('.toast').forEach(function(e){e.remove()});var t=document.createElement('div');t.className='toast';t.setAttribute('role','status');t.textContent=m;document.body.appendChild(t);setTimeout(function(){t.remove()},2800)}
+function paged(arr,key,size){var p=UI.pg[key]||0,pages=Math.max(1,Math.ceil(arr.length/size));p=clamp(p,0,pages-1);UI.pg[key]=p;return {items:arr.slice(p*size,p*size+size),p:p,pages:pages,off:p*size}}
+function pager(key,pg){return pg.pages>1?'<span class="pager"><button data-act="pg" data-k="'+key+'" data-d="-1" aria-label="Previous page">‹</button>'+(pg.p+1)+' / '+pg.pages+'<button data-act="pg" data-k="'+key+'" data-d="1" aria-label="Next page">›</button></span>':''}
+function ring(s,cls){return '<div class="ring '+(cls||'')+'" style="--p:'+s.pct+';--c:'+scoreColor(s)+'" title="Readiness: '+s.n+' of '+s.of+' checks"><span>'+s.n+'/'+s.of+'</span></div>'}
+function stagePill(d){var s=d.stage||'share',c={share:'blue',challenge:'acc',decide:'warn',decided:'ok',learned:''}[s];return '<span class="pill '+c+'"><i></i>'+STAGE_LABEL[s]+'</span>'}
+function confirmed(key){if(UI.confirm[key]){delete UI.confirm[key];return true}UI.confirm[key]=1;setTimeout(function(){if(UI.confirm[key]){delete UI.confirm[key];render()}},3000);render();return false}
+function lh(s,n){var t=(s||'').trim();return t.length>n?t.slice(0,n-1)+'…':t}
+function voteBars(d,v,n){n=Math.max(1,n);return optsOf(d).map(function(o){var c=v[o.id]||0;return '<div class="hbar"><span title="'+esc(o.label)+'">'+esc(o.label)+'</span><span class="bar"><i style="width:'+Math.round(100*c/n)+'%;background:'+optColor(d,o.id)+'"></i></span><b class="num">'+c+'</b></div>'}).join('')}
+function meter(label,val,max,good){var p=Math.round(100*val/max),c=val>=good?'var(--ok)':'var(--acc)';return '<div class="hbar"><span>'+label+'</span><span class="bar"><i style="width:'+p+'%;background:'+c+'"></i></span><b class="num">'+val.toFixed(1)+'</b></div>'}
+function fmtT(ms){var s=Math.floor(ms/1000);return Math.floor(s/60)+':'+('0'+s%60).slice(-2)}
+function shade(hex,f){var c=hex.replace('#','');if(c.length!==6)return hex;var r=parseInt(c.slice(0,2),16),g=parseInt(c.slice(2,4),16),b=parseInt(c.slice(4,6),16);var m=function(x){return Math.round(clamp(f<1?x*f:x+(255-x)*(f-1),0,255))};return 'rgb('+m(r)+','+m(g)+','+m(b)+')'}
+var CSSHEX={'var(--go)':'#2e9e6a','var(--hold)':'#d99a1c','var(--no)':'#d8492f','var(--acc)':'#e4572e'};
+/* a CSS 3D box: x,y on the floor, w/d footprint, h height */
+function box(x,y,w,dp,h,col,grow,extra){
+  var c=CSSHEX[col]||col,pos='translate3d('+x+'px,'+y+'px,0)';
+  return '<div class="box'+(grow?' grow':'')+'" style="--pos:'+pos+';transform:'+pos+';width:'+w+'px;height:'+dp+'px;'+(extra||'')+'">'+
+   '<div class="f" style="width:'+w+'px;height:'+dp+'px;background:'+shade(c,1.12)+';transform:translateZ('+h+'px)"></div>'+
+   '<div class="f" style="width:'+w+'px;height:'+h+'px;top:'+dp+'px;transform-origin:top;transform:rotateX(90deg);background:'+shade(c,.82)+'"></div>'+
+   '<div class="f" style="width:'+w+'px;height:'+h+'px;transform-origin:top;transform:rotateX(90deg);background:'+shade(c,.92)+'"></div>'+
+   '<div class="f" style="width:'+h+'px;height:'+dp+'px;transform-origin:left;transform:rotateY(-90deg);background:'+shade(c,.7)+'"></div>'+
+   '<div class="f" style="width:'+h+'px;height:'+dp+'px;left:'+w+'px;transform-origin:left;transform:rotateY(-90deg);background:'+shade(c,.95)+'"></div></div>';
+}
+/* 3D bar chart: items [{label,v,col,t}] - the 3D part is visual, values sit in a 2D legend so nothing is clipped */
+function bars3d(key,items,maxV,height,opts){
+  opts=opts||{};var grow=!PLAYED[key];PLAYED[key]=1;var n=items.length,gap=opts.gap||26,w=opts.w||46,total=n*w+(n-1)*gap,hp=parseInt(height,10)||160,H=Math.min(opts.H||150,Math.round(hp*.55));
+  var floor='<div class="plate" style="left:'+(-total/2-34)+'px;top:'+(-w/2-26)+'px;width:'+(total+68)+'px;height:'+(w+52)+'px;border-radius:14px;background:'+(opts.floor||'var(--sunk)')+';transform:translateZ(-1px)"></div>';
+  var b=items.map(function(it,i){var h=Math.max(3,Math.round(H*(maxV?it.v/maxV:0)));var x=-total/2+i*(w+gap);return box(x,-w/2,w,w,h,it.col,grow,'animation-delay:'+(i*.09)+'s')}).join('');
+  return '<div class="b3"><div class="scene'+(opts.spin?' spin':'')+'" style="height:'+hp+'px"><div class="floor" style="top:70%;transform:rotateX(56deg) rotateZ('+(opts.rz==null?-16:opts.rz)+'deg)">'+floor+b+'</div></div>'+
+   '<div class="b3leg">'+items.map(function(it){return '<span><i style="background:'+(CSSHEX[it.col]||it.col)+'"></i>'+esc(it.label)+' <b class="num">'+esc(it.t!=null?it.t:it.v)+'</b></span>'}).join('')+'</div></div>';
+}
+
+/* ============ landing ============ */
+function heroScene(){
+  var ppl=[[-150,-40,70,'#3b5bcc'],[-60,-140,100,'#2e9e6a'],[70,-130,85,'#8a4fd0'],[150,-10,120,'#127e8f'],[40,110,60,'#e4572e'],[-110,90,90,'#d99a1c']],s='';
+  s+='<div class="plate" style="left:-230px;top:-230px;width:460px;height:460px;background:radial-gradient(circle,rgba(228,87,46,.18),rgba(255,255,255,.05) 55%,rgba(255,255,255,0) 70%);border:1px solid rgba(255,255,255,.12)"></div>';
+  s+='<div class="plate" style="left:-120px;top:-120px;width:240px;height:240px;border:1px dashed rgba(255,255,255,.25);transform:translateZ(1px)"></div>';
+  ppl.forEach(function(p,i){s+=box(p[0]-14,p[1]-14,28,28,p[2],p[3],true,'animation-delay:'+(i*.12)+'s')});
+  s+='<div class="pulse" style="left:16px;top:86px;width:48px;height:48px"></div>';
+  s+=box(-30,-30,60,60,46,'#f4f1ea',true,'animation-delay:.8s');
+  s+='<div class="bob" style="position:absolute;transform-style:preserve-3d;--z:96px;left:-18px;top:-18px">'+box(0,0,36,36,36,'#e4572e',false)+'</div>';
+  return '<div class="scene spin" style="position:absolute;inset:0"><div class="floor" style="top:52%">'+s+'</div></div>';
+}
+function vLanding(){
+  var saved=LS.get('decision-room.sessions',[]);
+  return '<div class="landing"><div class="lp-l enter-l">'+
+   '<div class="row" style="gap:10px">'+MARK+'<b style="font-family:var(--display);font-size:19px">Decision Room</b><span class="pill">Management presentation · team tool</span></div>'+
+   '<h1>How does a <em>smart</em> team make a <em>bad</em> decision?</h1>'+
+   '<div class="lead">Rarely because people lack intelligence. It happens when the team does not use what each person knows. Coca-Cola ran about 200,000 taste tests before New Coke, and the original came back 79 days later. Decision Room makes every big decision go through the three steps from our research.</div>'+
+   '<div class="steps3">'+[['1','Share','What do we know?','Private views first, so nobody is anchored.'],['2','Challenge','What haven’t we tested?','Devil’s advocate, pre-mortem, even airtime.'],['3','Decide','What would change our call?','Readiness checks, tripwire, a plan with owners.']].map(function(x){return '<div class="s tilt"><b><i>'+x[0]+'</i>'+x[1]+'</b><small><b style="display:inline;font-size:12.5px">'+x[2]+'</b> '+x[3]+'</small></div>'}).join('')+'</div>'+
+   '<div class="row" style="gap:10px"><button class="btn pri lg" data-act="create">'+ic('plus')+'Create a team room</button><button class="btn lg" data-act="joinform">Join with a code</button><button class="btn ghost lg" data-act="trylocal">Try on this device</button></div>'+
+   (saved.length?'<div class="row small"><span class="dim">Your rooms:</span>'+saved.slice(0,3).map(function(s,i){return '<button class="chip" data-act="resume" data-i="'+i+'">'+esc(s.team)+' · '+(s.key?'manager':'member')+'</button>'}).join('')+'</div>':'')+
+   '<div class="stats"><span><b>~200k</b>taste tests said yes</span><span><b>1 in 10</b>testers reacted angrily</span><span><b>79 days</b>until the original came back</span><span><b>r = .41</b>even speaking turns (Woolley, 2010)</span></div>'+
+   '</div><div class="lp-r" aria-hidden="false">'+heroScene()+
+   '<div class="cap"><div><b>Six smart people. One warning signal.</b><small>The pulse is the person who noticed. The process decides if the team hears it.</small></div><div class="legend"><span><i style="background:#e4572e"></i>The warning</span><span><i style="background:#f4f1ea"></i>The decision</span></div></div></div></div>';
+}
+function createModal(){
+  modal('<h2>Create a team room</h2><div class="mut small">You become the manager of the room. Your teammates join with a code: no account needed.</div>'+
+   '<div><label class="lab" for="c-name">Your name</label><input class="field" id="c-name" placeholder="e.g. Hazem"></div>'+
+   '<div><label class="lab" for="c-team">Team or class name</label><input class="field" id="c-team" placeholder="e.g. Management group 4"></div>'+
+   '<div class="row" style="justify-content:flex-end"><button class="btn ghost" data-act="closemodal">Cancel</button><button class="btn pri" data-act="docreate">Create room</button></div>');
+  setTimeout(function(){var e=$('#c-name');if(e&&!$('.modal input:focus'))e.focus()},40);
+}
+function joinModal(code){
+  modal('<h2>Join your team</h2><div class="mut small">Enter the 6-letter code your manager shared and your name. Your answers go to your team’s room.</div>'+
+   '<div><label class="lab" for="j-code">Room code</label><input class="field" id="j-code" value="'+esc(code||'')+'" placeholder="ABC234" style="text-transform:uppercase;letter-spacing:.15em;font-weight:700" maxlength="6"></div>'+
+   '<div><label class="lab" for="j-name">Your name</label><input class="field" id="j-name" placeholder="First and last name"></div>'+
+   '<div class="row" style="justify-content:flex-end"><button class="btn ghost" data-act="closemodal">Cancel</button><button class="btn pri" data-act="dojoin">Join</button></div>');
+  setTimeout(function(){var e=$(code?'#j-name':'#j-code');if(e&&!$('.modal input:focus'))e.focus()},40);
+}
+function modal(html){$('#layer').innerHTML='<div class="modal" data-act="closemodal"><div class="box" role="dialog" aria-modal="true">'+html+'</div></div>'}
+function closeModal(){$('#layer').innerHTML=''}
+function siteURL(){return location.origin+location.pathname}
+function inviteLink(){return siteURL()+'#join='+SES.code}
+function managerLink(){return siteURL()+'#room='+SES.code+'&key='+SES.key}
+
+/* ============ sidebar ============ */
+function renderSide(){
+  var side=$('#side');if(!side)return;
+  var h='<button class="brand" data-act="go" data-page="'+(VIEWAS==='manager'?'home':'inbox')+'">'+MARK+'<div><b>Decision Room</b><small>'+esc(TEAM||'')+'</small></div></button>';
+  var nav=function(page,label,icon,cnt,q){return '<button class="nav" data-act="go" data-page="'+page+'"'+(UI.page===page?' aria-current="page"':'')+'>'+ic(icon)+'<span class="t">'+label+'</span>'+(cnt?'<span class="cnt'+(q?' q':'')+'">'+cnt+'</span>':'')+'</button>'};
+  if(VIEWAS==='manager'){
+    h+='<div class="navlabel">Manager</div>'+nav('home','Home','home',attention().length||'');
+    decList().filter(function(d){return stageIdx(d)<4}).slice(0,4).forEach(function(d){h+='<button class="nav sub" data-act="open" data-id="'+d.id+'"'+(UI.page==='dec'&&UI.dec===d.id?' aria-current="page"':'')+'><span class="t">'+esc(d.title)+'</span></button>'});
+    h+=nav('team','Team','users',members().length||'',true)+nav('playbook','Playbook','book')+nav('room','Room & invite','gear');
+  }else{
+    var inbox=teamInbox().filter(function(x){return !x.done}).length,tasks=myTasks().filter(function(t){return !taskDone(t.t)}).length;
+    h+='<div class="navlabel">My section</div>'+nav('inbox','Inbox','inbox',inbox||'')+nav('tasks','My tasks','checks',tasks||'')+nav('results','Decisions','doc')+nav('playbook','Playbook','book');
+  }
+  h+='<div class="sp"></div>';
+  if(SES.mode==='local'&&VIEWAS==='team'){var ms=members().filter(function(m){return PEOPLE[m].role!=='manager'});h+='<label class="navlabel" for="asw" style="padding-top:0">Answering as</label><select id="asw">'+ms.map(function(m){return '<option value="'+m+'"'+(UID===m?' selected':'')+'>'+esc(bare(m))+'</option>'}).join('')+'<option value="__new">+ Add a person…</option></select>'}
+  if(ISMGR)h+='<button class="switch" data-act="viewas">'+ic('swap')+(VIEWAS==='manager'?(SES.mode==='local'?'Answer as a team member':'Preview team member view'):'Back to manager view')+'</button>';
+  if(!ISMGR)h+='<button class="switch" data-act="leave">'+ic('out')+'Leave this room</button>';
+  h+='<div class="me">'+avatar(UID||'me')+'<div style="min-width:0"><b>'+esc(bare(UID))+'</b><small>'+(VIEWAS==='manager'?'Manager · full access':'Team member')+'</small></div></div>';
+  h+='<div class="status'+(SES.mode==='net'&&ONLINE?'':' off')+'"><i></i>'+(SES.mode==='net'?(ONLINE?'Live · room '+SES.code+(AION?' · AI on':''):'Offline · retrying'):'This device only · practice mode')+'</div>';
+  side.innerHTML=h;
+}
+function attention(){
+  var out=[];
+  decList().forEach(function(d){var s=stageIdx(d),a=liveAgg(d.id);
+    if(s===0&&a.n>=2)out.push({id:d.id,tab:'share',t:a.n+' private views ready to reveal',d:d.title,sev:'blue'});
+    if(s>=1&&s<=2){var o=challenges(d.id).filter(function(c){return !c.done}).length;if(o)out.push({id:d.id,tab:'challenge',t:o+' challenge'+(o>1?'s':'')+' to answer',d:d.title,sev:'acc'})}
+    if(s>=1&&s<=2&&!d.devil)out.push({id:d.id,tab:'challenge',t:'No devil’s advocate yet',d:d.title,sev:'warn'});
+    if(s===3){var late=(d.plan||[]).filter(function(p){return !taskDone(p)&&p.due&&p.due<addDays(0)}).length;if(late)out.push({id:d.id,tab:'decide',t:late+' overdue task'+(late>1?'s':''),d:d.title,sev:'bad'});
+      if(d.review&&d.review<=addDays(0))out.push({id:d.id,tab:'learn',t:'Review date reached: record the outcome',d:d.title,sev:'ok'})}
+  });return out;
+}
+function head(t,sub,actions,crumb){return '<div class="head"><div class="l">'+(crumb||'')+'<h1>'+esc(t)+'</h1>'+(sub?'<div class="sub">'+sub+'</div>':'')+'</div><div class="row">'+(actions||'')+'</div></div>'}
+function kpi(v,l,s,col){return '<div class="panel kpi tilt"><div class="l">'+l+'</div><div class="v"'+(col?' style="color:'+col+'"':'')+'>'+v+'</div><div class="s">'+s+'</div></div>'}
+
+/* ============ manager pages ============ */
+function inviteBlock(){
+  if(SES.mode==='local')return '<h2>Practice mode</h2><div class="mut small">Everything stays on this device. Use “Answer as a team member” to pass the laptop around: each person answers privately, then you reveal. To invite people on their own phones, deploy the site and create a team room.</div>';
+  return '<h2>Invite your team</h2><div class="row" style="gap:16px;flex-wrap:nowrap"><div id="qr" style="width:118px;height:118px;flex:none;background:#fff;border-radius:10px;padding:6px;display:grid;place-items:center" aria-label="QR code for the invite link"></div><div style="min-width:0;display:grid;gap:6px"><span class="dim small">Room code</span><span class="bigcode">'+esc(SES.code)+'</span><span class="small mut">Teammates scan the QR or open the link, then type their name. No account needed.</span></div></div>'+
+   '<div class="row" style="flex-wrap:nowrap"><span class="codebox">'+esc(inviteLink())+'</span><button class="btn sm" data-act="copy" data-v="invite">'+ic('copy')+'Copy</button></div>';
+}
+function vHome(){
+  var decs=decList();
+  if(!decs.length){
+    return head('Welcome, '+bare(UID),'Run every important decision through Share, Challenge and Decide, so your smart team does not make a bad call.','<button class="btn pri" data-act="newdec">'+ic('plus')+'New decision</button>')+
+    '<div class="page g2" style="grid-template-rows:minmax(0,1fr)"><div class="panel center" style="gap:14px"><div style="max-width:440px;display:grid;gap:12px;justify-items:center"><div class="scene" style="width:100%;height:150px">'+'<div class="floor spinf" style="top:62%">'+box(-22,-22,44,44,50,'#e4572e',true)+'</div></div><h2>Start your first decision</h2><div class="mut">Pick a template or start blank. Your team answers privately in their own section.</div><div class="row" style="justify-content:center"><button class="btn pri" data-act="newdec">'+ic('plus')+'New decision</button><button class="btn" data-act="casestudy">Practice with the New Coke case</button></div></div></div>'+
+    '<div class="panel">'+inviteBlock()+'</div></div>';
+  }
+  var open=decs.filter(function(d){return stageIdx(d)<3}),waiting=0,saf=[],tasks=0,done=0;
+  decs.forEach(function(d){var a=liveAgg(d.id);if(stageIdx(d)===0)waiting+=Math.max(0,a.team-a.n);if(a.safeN)saf.push(a.safety);(d.plan||[]).forEach(function(p){tasks++;if(taskDone(p))done++})});
+  var safety=saf.length?avg(saf):null,pg=paged(decs,'home',6),at=attention(),pa=paged(at,'attn',5);
+  return head('Home',members().length+' in the room · '+decs.length+' decision'+(decs.length===1?'':'s'),'<button class="btn pri" data-act="newdec">'+ic('plus')+'New decision</button>')+
+   '<div class="page" style="grid-template-rows:auto minmax(0,1fr)"><div class="kpis">'+
+    kpi(open.length,'Open decisions','In Share, Challenge or Decide')+kpi(waiting,'Answers still missing','Private views not yet in')+
+    kpi(safety===null?'–':safety.toFixed(1),'Team safety','Average of 5 · aim for 3.5+',safety!==null&&safety<3.5?'var(--bad)':'')+
+    kpi(tasks?Math.round(100*done/tasks)+'%':'–','Plan done',done+' of '+tasks+' actions complete')+'</div>'+
+   '<div class="g2" style="grid-template-columns:minmax(0,1.7fr) minmax(0,1fr)">'+
+    '<div class="panel"><div class="ph"><h2>Decisions</h2>'+pager('home',pg)+'</div><table class="t"><thead><tr><th>Decision</th><th>Stage</th><th>Answers</th><th>Ready</th></tr></thead><tbody>'+
+     pg.items.map(function(d){var a=liveAgg(d.id),s=score(d.id);return '<tr class="click" data-act="open" data-id="'+d.id+'"><td class="title">'+esc(d.title)+(d.practice?' <span class="pill">Practice</span>':'')+'</td><td>'+stagePill(d)+'</td><td>'+a.n+' / '+a.team+'</td><td>'+ring(s,'sm')+'</td></tr>'}).join('')+'</tbody></table></div>'+
+    '<div class="panel"><div class="ph"><h2>Needs your attention</h2>'+pager('attn',pa)+'</div>'+(pa.items.length?'<ul class="list">'+pa.items.map(function(x){return '<li class="soft" style="cursor:pointer" data-act="open" data-id="'+x.id+'" data-tab="'+x.tab+'"><span class="t"><b>'+esc(x.t)+'</b><span class="by">'+esc(x.d)+'</span></span><span class="pill '+x.sev+'">'+ic('arrow',13)+'</span></li>'}).join('')+'</ul>':'<div class="empty">You are all caught up.</div>')+'</div></div></div>';
+}
+function vRoom(){
+  var ai=SES.mode!=='net'?'<span class="pill">Practice mode · built-in rules</span>':(AION?'<span class="pill ok"><i></i>AI on · Claude</span>':'<span class="pill warn"><i></i>AI off · built-in rules</span>');
+  return head('Room & invite',esc(TEAM))+'<div class="page g3" style="grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) minmax(0,.9fr)">'+
+   '<div class="panel">'+inviteBlock()+'</div>'+
+   '<div class="panel"><h2>Your manager link</h2>'+(SES.mode==='net'?'<div class="alert warn small">'+ic('lock')+'<span>This link gives full manager access. Keep it private. Use it to open the room on another device.</span></div><div class="row" style="flex-wrap:nowrap"><span class="codebox">'+esc(managerLink())+'</span><button class="btn sm" data-act="copy" data-v="manager">'+ic('copy')+'Copy</button></div>':'<div class="mut small">Not needed in practice mode.</div>')+
+    '<h3 style="margin-top:6px">AI assistant</h3><div>'+ai+'</div><div class="small mut">'+(AION?'AI answers come from Claude through your site. Team names are never sent.':'To turn AI on, add an ANTHROPIC_API_KEY environment variable in Netlify (see the README). Until then, every AI button uses built-in rules.')+'</div></div>'+
+   '<div class="panel"><h2>Data</h2><div class="small mut">Download a backup of all decisions and notes, or restore one.</div><button class="btn" data-act="export">'+ic('doc')+'Download backup (.json)</button><label class="btn" style="cursor:pointer">'+ic('arrow')+'Restore backup<input type="file" id="import" accept=".json,application/json" class="sr"></label>'+
+    '<h3 style="margin-top:6px">Appearance</h3><div class="seg" role="group" aria-label="Theme">'+['auto','light','dark'].map(function(t){return '<button data-act="theme" data-v="'+t+'" aria-pressed="'+((LS.get('dr.theme','auto'))===t)+'">'+t[0].toUpperCase()+t.slice(1)+'</button>'}).join('')+'</div>'+
+    '<div class="grow"></div><button class="btn ghost danger" data-act="leave">'+ic('out')+(UI.confirm.leave?'Click again to leave':'Leave this room on this device')+'</button></div></div>';
+}
+function drawQR(){var el=$('#qr');if(!el||!SES||SES.mode!=='net')return;
+  var go=function(){try{el.innerHTML='';new window.QRCode(el,{text:inviteLink(),width:106,height:106,correctLevel:window.QRCode.CorrectLevel.M})}catch(e){el.innerHTML='<span class="small" style="color:#555">QR unavailable</span>'}};
+  if(window.QRCode)return go();
+  if(!document.getElementById('qrjs')){var s=document.createElement('script');s.id='qrjs';s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';s.onload=function(){render()};s.onerror=function(){var e=$('#qr');if(e)e.innerHTML='<span class="small" style="color:#555;padding:6px;text-align:center">QR needs internet</span>'};document.head.appendChild(s)}}
+
+/* ---- decision ---- */
+function vDec(){
+  var d=DEC[UI.dec];if(!d){UI.page='home';return vHome()}
+  var s=stageIdx(d),sc=score(d.id),a=liveAgg(d.id),ch=challenges(d.id).filter(function(c){return !c.done}).length;
+  var next={0:['reveal','Reveal answers → Challenge'],1:['todecide','Move to Decide'],2:['publish','Publish decision to team'],3:['tolearn','Record the outcome']}[s];
+  var steps=['Share','Challenge','Decide','Learn'],cur=s===4?4:Math.min(s,3);
+  var stepper='<div class="stepper">'+steps.map(function(x,i){var st=i<cur?'done':(i===cur?'on':'');return (i?'<i></i>':'')+'<span class="'+st+'"><b>'+(i<cur?'✓':i+1)+'</b>'+x+'</span>'}).join('')+'</div>';
+  var tabs=[['share','Share',a.n+'/'+a.team],['challenge','Challenge',ch||''],['decide','Decide',(d.plan||[]).length||''],['report','Report',''],['learn','Learn','']];
+  var body={share:tShare,challenge:tChallenge,decide:tDecide,report:tReport,learn:tLearn}[UI.tab]||tShare;
+  return head(d.title,esc(d.question||''),
+     ring(sc)+'<button class="btn ai" data-act="aiopen">'+ic('spark')+'AI assistant</button>'+(next?'<button class="btn pri" data-act="'+next[0]+'">'+next[1]+'</button>':'')+'<button class="btn ghost sm danger" data-act="deldec">'+(UI.confirm.deldec?'Click again to delete':'Delete')+'</button>',
+     '<div class="crumb"><button data-act="go" data-page="home">Home</button> / '+(d.anonymous?'Anonymous input':'Named input')+(d.practice?' · Practice case':'')+'</div>')+
+   '<div class="page" style="grid-template-rows:auto auto minmax(0,1fr)"><div class="row between">'+stepper+'<span class="small dim">'+(s===0?'Your team sees: “Give your view”':s===1?'Your team sees: “Challenge it”':s===2?'Your team sees the results; the decision is not out yet':'Your team sees the decision and their tasks')+'</span></div>'+
+   '<div class="tabs" role="tablist">'+tabs.map(function(t){return '<button role="tab" data-act="tab" data-v="'+t[0]+'" aria-selected="'+(UI.tab===t[0])+'">'+t[1]+(t[2]!==''?'<span class="n">'+t[2]+'</span>':'')+'</button>'}).join('')+'</div>'+
+   body(d)+'</div>';
+}
+function tShare(d){
+  var a=liveAgg(d.id),s=stageIdx(d),sealed=s===0,ms=voters(d.id),pg=paged(ms,'who',innerHeight<800?4:6),pk=paged(a.know,'know',innerHeight<800?2:3),need=Math.max(2,Math.ceil(a.team*.6));
+  var who='<div class="panel"><div class="ph"><h3>Who has answered</h3>'+pager('who',pg)+'</div><div class="row"><span class="num" style="font-size:34px">'+a.n+'</span><span class="mut">of '+a.team+' in the room</span></div><div class="bar"><i style="width:'+(a.team?Math.round(100*a.n/a.team):0)+'%"></i></div>'+
+   (ms.length?'<ul class="list">'+pg.items.map(function(u){var ok=a.answered.indexOf(u)>-1;return '<li class="soft">'+avatar(u,24)+'<span class="t">'+esc(nm(u))+'</span>'+(ok?'<span class="pill ok">'+ic('check',12)+'Answered</span>':'<span class="pill">Waiting</span>')+'</li>'}).join('')+'</ul>':'<div class="empty">Nobody has joined yet. Share the room code.</div>')+'</div>';
+  var vote;
+  if(sealed){vote='<div class="panel center" style="gap:10px"><div style="display:grid;gap:10px;justify-items:center;max-width:340px"><span class="ring lg" style="--p:'+(a.team?Math.round(100*a.n/a.team):0)+';--c:var(--blue)"><span>'+ic('lock',24)+'</span></span><h2>Answers are sealed</h2><div class="mut small">Nobody, including you, sees the vote until you reveal it. That stops the first or loudest opinion from anchoring everyone else.</div>'+
+    '<button class="btn pri" data-act="reveal"'+(a.n<1?' disabled':'')+'>'+ic('eye')+'Reveal '+a.n+' answer'+(a.n===1?'':'s')+'</button>'+(a.n<need?'<div class="dim small">Tip: wait for at least '+need+' answers.</div>':'')+'</div></div>'}
+  else{var uni=a.n>=3&&a.top>=.85,mx=Math.max.apply(null,optsOf(d).map(function(o){return a.votes[o.id]||0}).concat([1]));
+    vote='<div class="panel" style="gap:6px"><div class="ph"><h3>The private vote</h3><span class="pill">'+a.n+' answers</span></div>'+
+    bars3d('v:'+d.id,optsOf(d).map(function(o){return {label:o.label,v:a.votes[o.id]||0,col:optColor(d,o.id)}}),mx,innerHeight<800?'150px':'190px',{H:innerHeight<800?80:110,w:40})+
+    meter('Confidence',a.conf,5,0)+meter('Safety',a.safety,5,3.5)+
+    (uni?'<div class="alert bad">'+ic('alert')+'<span><b>Near-unanimous.</b> This is when smart teams stop thinking. Make sure someone argues the other side.</span></div>':(a.safeN&&a.safety<3.5?'<div class="alert bad">'+ic('alert')+'<span><b>Low safety.</b> People may be holding back. Hear the quiet voices first.</span></div>':(a.n?'<div class="alert ok">'+ic('check')+'<span>Views differ. Ask each side to explain its reasoning.</span></div>':'')))+'</div>'}
+  var know='<div class="panel"><div class="ph"><h3>What individuals know</h3>'+pager('know',pk)+'</div><div class="hint">The facts each person brings. At Coca-Cola, the taste tests never measured the bond with the brand.</div>'+
+   (sealed?'<div class="empty">Shown after the reveal.</div>':(pk.items.length?'<ul class="list">'+pk.items.map(function(k){var w=a.why.filter(function(x){return x.by===k.by})[0];return '<li><span class="t">“'+esc(k.t)+'”'+(w?'<span class="by">Why: '+esc(lh(w.t,90))+'</span>':'')+'<span class="by">'+(d.anonymous?'Anonymous':esc(nm(k.by)))+'</span></span></li>'}).join('')+'</ul>':'<div class="empty">Nobody has shared unique knowledge yet.</div>'))+'</div>';
+  return '<div class="g3" style="grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr) minmax(0,1.1fr)">'+who+vote+know+'</div>';
+}
+function tChallenge(d){
+  var sub=UI.sub,seg='<div class="seg" role="group" aria-label="Challenge tools">'+[['dissent','Dissent'],['evidence','Evidence'],['criteria','Criteria'],['meeting','Meeting']].map(function(x){return '<button data-act="sub" data-v="'+x[0]+'" aria-pressed="'+(sub===x[0])+'">'+x[1]+'</button>'}).join('')+'</div>';
+  var body=sub==='evidence'?cEvidence(d):sub==='meeting'?cMeeting(d):sub==='criteria'?cCriteria(d):cDissent(d);
+  return '<div style="display:grid;grid-template-rows:auto minmax(0,1fr);gap:12px;min-height:0"><div class="row between">'+seg+'<span class="small dim">'+({dissent:'Bring the disagreement out and answer it.',evidence:'What must be true, and what could go wrong?',criteria:'Score each option against what matters most.',meeting:'Track who speaks. Even turn-taking makes groups smarter.'})[sub]+'</span></div>'+body+'</div>';
+}
+function cDissent(d){
+  var al=alerts(d.id),pa=paged(al,'al',innerHeight<800?1:2),ch=challenges(d.id),open=ch.filter(function(c){return !c.done}),sorted=open.concat(ch.filter(function(c){return c.done})),pc=paged(sorted,'ch',innerHeight<800?3:4),ms=members();
+  var left='<div style="display:grid;grid-template-rows:minmax(0,1fr) auto;gap:14px;min-height:0"><div class="panel"><div class="ph"><h3>Mind-trap alerts</h3>'+pager('al',pa)+'</div>'+
+    (pa.items.length?pa.items.map(function(x){return '<div class="alert '+x.sev+'" style="flex-direction:column;gap:4px"><b>'+esc(x.tr.name)+'</b><span>'+esc(x.why)+'.</span><span class="small"><b>Counter-move:</b> '+esc(x.tr.fix)+'</span><button class="btn sm" style="align-self:flex-start" data-act="alert2plan" data-v="'+x.t+'">'+ic('plus')+'Add to plan</button></div>'}).join(''):'<div class="empty">No traps detected so far. Alerts appear as answers come in.</div>')+'</div>'+
+    '<div class="panel"><h3>Devil’s advocate</h3><div class="hint">One person argues the strongest case against. They see this role in their own section.</div><select class="field" id="devil" style="width:100%"><option value="">Nobody assigned</option>'+ms.map(function(u){return '<option value="'+u+'"'+(d.devil===u?' selected':'')+'>'+esc(nm(u))+'</option>'}).join('')+'</select></div></div>';
+  var right='<div class="panel"><div class="ph"><h3>Challenges <span class="dim" style="font-weight:500">('+open.length+' open)</span></h3>'+pager('ch',pc)+'</div>'+
+   '<div class="add"><input class="field" id="newch" placeholder="Log a challenge raised in the meeting" aria-label="New challenge"><button class="btn sm dark" data-act="addch">Log</button></div>'+
+   (pc.items.length?'<ul class="list">'+pc.items.map(function(c){return '<li class="'+(c.done?'done':'')+'"><span class="t"><span class="pill '+(c.kind==='Pre-mortem'?'warn':c.kind==='Concern'?'acc':c.kind.indexOf('AI')===0?'':'blue')+'" style="margin-bottom:3px">'+esc(c.kind)+'</span><br>'+esc(c.text)+'<span class="by">'+(c.anon?'Anonymous':c.by==='_ai'?'AI devil’s advocate':esc(nm(c.by)))+'</span></span><button class="btn sm'+(c.done?'':' pri')+'" data-act="answer" data-k="'+esc(c.key)+'">'+(c.done?'Reopen':'Mark answered')+'</button>'+(c.own?'<button class="x" data-act="delch" data-id="'+c.id+'" aria-label="Delete">×</button>':'')+'</li>'}).join('')+'</ul>':'<div class="empty">'+(stageIdx(d)===0?'Teammates add concerns, pre-mortems and “what would change my mind” once you move to Challenge. You can also ask the AI devil’s advocate.':'No challenges yet. Zero dissent is a warning sign.')+'</div>')+'</div>';
+  return '<div class="g2" style="grid-template-columns:minmax(0,1fr) minmax(0,1.35fr)">'+left+right+'</div>';
+}
+function matrix(rs){var h='<div class="matrix" role="img" aria-label="Risk matrix: likelihood across, impact up">';for(var im=3;im>=1;im--){h+='<div class="ax">'+LV[im-1]+'</div>';for(var l=1;l<=3;l++){var s=l*im;h+='<div class="mc '+(s>=6?'hi':s>=3?'mid':'lo')+'">'+rs.map(function(r,i){return r.l===l&&r.i===im?'<span class="dot">'+(i+1)+'</span>':''}).join('')+'</div>'}}return h+'<div></div><div class="ax">Low</div><div class="ax">Mid</div><div class="ax">High</div></div>'}
+function cEvidence(d){
+  var n=notesOf(d.id),pa=paged(n.assumptions,'as',innerHeight<800?3:4),pr=paged(n.risks,'rk',innerHeight<800?2:3),one=d.door==='one';
+  return '<div class="g2">'+
+   '<div class="panel"><div class="ph"><h3>Assumptions</h3>'+pager('as',pa)+'</div><div class="hint">What must be true for this to work? Rate the evidence honestly.</div>'+
+    '<div class="add"><input class="field" id="newas" placeholder="We are assuming that…" aria-label="Assumption"><label class="row small"><input type="checkbox" id="newcrit"> Critical</label><button class="btn sm dark" data-act="addas">Add</button></div>'+
+    (pa.items.length?'<ul class="list">'+pa.items.map(function(x){var bad=x.critical&&x.ev<2;return '<li><span class="t">'+esc(x.text)+(x.critical?' <span class="pill '+(bad?'bad':'ok')+'">Critical</span>':'')+'</span><span class="seg">'+EV.map(function(e,i){return '<button data-act="ev" data-id="'+x.id+'" data-v="'+i+'" aria-pressed="'+(x.ev===i)+'" style="padding:3px 9px;font-size:12px">'+e+'</button>'}).join('')+'</span><button class="x" data-act="crit" data-id="'+x.id+'" title="Mark critical" aria-label="Toggle critical">★</button><button class="x" data-act="delas" data-id="'+x.id+'" aria-label="Delete">×</button></li>'}).join('')+'</ul>':'<div class="empty">New Coke assumed: “People who prefer the taste will accept losing the original.” Nobody tested it.</div>')+'</div>'+
+   '<div class="panel"><div class="ph"><h3>Risks</h3><div class="row"><span class="small dim">Undo?</span><span class="seg"><button data-act="door" data-v="two" aria-pressed="'+!one+'" style="padding:3px 9px;font-size:12px">Easy</button><button data-act="door" data-v="one" aria-pressed="'+one+'" style="padding:3px 9px;font-size:12px">Hard</button></span>'+pager('rk',pr)+'</div></div>'+
+    '<div class="add"><input class="field" id="newrk" placeholder="What could go wrong?" aria-label="Risk"><select class="field" id="rkl" aria-label="Likelihood">'+LV.map(function(v,i){return '<option value="'+(i+1)+'"'+(i===1?' selected':'')+'>Likely: '+v+'</option>'}).join('')+'</select><select class="field" id="rki" aria-label="Impact">'+LV.map(function(v,i){return '<option value="'+(i+1)+'"'+(i===1?' selected':'')+'>Impact: '+v+'</option>'}).join('')+'</select></div>'+
+    '<div class="add"><input class="field" id="rkfix" placeholder="Fix or undo plan (optional)" aria-label="Fix"><label class="row small"><input type="checkbox" id="rkundo"> Can be undone</label><button class="btn sm dark" data-act="addrk">Add</button></div>'+
+    '<div class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:12px;min-height:0"><ul class="list grow">'+(pr.items.length?pr.items.map(function(r,i){var open=r.l*r.i>=6&&!r.undo&&!(r.fix||'').trim();return '<li><span class="dot">'+(pr.off+i+1)+'</span><span class="t">'+esc(r.text)+'<span class="by">'+LV[r.l-1]+' likelihood · '+LV[r.i-1]+' impact'+((r.fix||'').trim()?' · fix: '+esc(r.fix):'')+'</span></span><span class="pill '+(open?'bad':'ok')+'">'+(open?'No answer':'Covered')+'</span><button class="x" data-act="delrk" data-id="'+r.id+'" aria-label="Delete">×</button></li>'}).join(''):'<li class="soft"><span class="t dim">Imagine it failed a year from now. What went wrong?</span></li>')+'</ul>'+matrix(n.risks)+'</div></div></div>';
+}
+function cCriteria(d){
+  var n=notesOf(d.id),opts=optsOf(d),tot=critTotals(d.id),best=tot.slice().sort(function(a,b){return b.pct-a.pct})[0];
+  var tbl=n.criteria.length?'<table class="crit"><thead><tr><th>Criterion</th><th>Weight</th>'+opts.map(function(o){return '<th>'+esc(o.label)+'</th>'}).join('')+'<th></th></tr></thead><tbody>'+
+   n.criteria.map(function(c){return '<tr><td>'+esc(c.name)+'</td><td><select class="field" data-act="cw" data-id="'+c.id+'" aria-label="Weight">'+[1,2,3,4,5].map(function(w){return '<option'+(+c.w===w?' selected':'')+'>'+w+'</option>'}).join('')+'</select></td>'+
+    opts.map(function(o){var v=(n.scores[o.id]||{})[c.id]||0;return '<td><select class="field" data-act="cs" data-o="'+o.id+'" data-id="'+c.id+'" aria-label="Score '+esc(o.label)+'"><option value="0">–</option>'+[1,2,3,4,5].map(function(s){return '<option'+(+v===s?' selected':'')+'>'+s+'</option>'}).join('')+'</select></td>'}).join('')+'<td><button class="x" data-act="delcrit" data-id="'+c.id+'" aria-label="Delete">×</button></td></tr>'}).join('')+
+   '<tr class="tot"><td>Weighted score</td><td></td>'+tot.map(function(t){return '<td>'+t.pct+'%</td>'}).join('')+'<td></td></tr></tbody></table>':'<div class="empty">Add what matters: cost, customer impact, risk, speed, brand… Give each a weight, then score each option 1–5.</div>';
+  return '<div class="g2" style="grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)"><div class="panel"><div class="ph"><h3>Weighted decision matrix</h3></div><div class="add"><input class="field" id="newcrit2" placeholder="Criterion, e.g. Customer loyalty" aria-label="Criterion"><select class="field" id="newcw" aria-label="Weight">'+[1,2,3,4,5].map(function(w){return '<option value="'+w+'"'+(w===3?' selected':'')+'>Weight '+w+'</option>'}).join('')+'</select><button class="btn sm dark" data-act="addcrit">Add</button></div>'+tbl+'</div>'+
+   '<div class="panel"><h3>Result</h3>'+(n.criteria.length?bars3d('c:'+d.id+':'+n.criteria.length,tot.map(function(t){return {label:t.o.label,v:t.pct,t:t.pct+'%',col:optColor(d,t.o.id)}}),100,innerHeight<800?'170px':'220px',{H:innerHeight<800?90:120,w:40})+
+     '<div class="alert info small"><span><b>'+esc(best.o.label)+'</b> scores highest ('+best.pct+'%). A matrix structures the debate; it does not replace it. If the result surprises the team, discuss the weights.</span></div>':'<div class="empty">The 3D comparison appears here.</div>')+'</div></div>';
+}
+function cMeeting(d){
+  var n=notesOf(d.id),ps=participants(d.id),tot=0;ps.forEach(function(k){tot+=n.air[k]||0});var N=ps.length,pg=paged(ps,'mt',8);
+  var tiles='<div class="panel"><div class="ph"><h3>Who is speaking?</h3><div class="row">'+pager('mt',pg)+'<input class="field" id="guest" placeholder="Add a guest" style="width:140px" aria-label="Guest name"><button class="btn sm" data-act="addguest" aria-label="Add guest">'+ic('plus')+'</button><button class="btn sm ghost" data-act="resetair">'+(UI.confirm.resetair?'Click again':'Reset')+'</button></div></div><div class="hint">Click a person each time they start talking. Click again when they stop.</div>'+
+   (ps.length?'<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px">'+pg.items.map(function(k){var ms=n.air[k]||0,sh=tot?ms/tot:0,on=n.active===k,over=N>1&&sh>1.6/N,quiet=N>1&&tot>60000&&sh<.4/N;
+     return '<button class="tile'+(on?' on':'')+'" data-act="talk" data-k="'+esc(k)+'" aria-pressed="'+on+'"><span class="row">'+avatar(k,26)+'<b>'+esc(nm(k))+'</b>'+(on?'<span class="pill acc" style="margin-left:auto">'+ic('mic',12)+'Talking</span>':over?'<span class="pill bad" style="margin-left:auto">Talking a lot</span>':quiet?'<span class="pill blue" style="margin-left:auto">Quiet</span>':'')+'</span><span class="bar"><i id="ab-'+esc(k)+'" style="width:'+Math.round(sh*100)+'%;background:'+(over?'var(--bad)':'var(--acc)')+'"></i></span><span class="small dim" id="at-'+esc(k)+'">'+fmtT(ms)+' · '+Math.round(sh*100)+'% · '+(n.turns[k]||0)+' turns</span></button>'}).join('')+'</div>':'<div class="empty">When teammates join, they appear here. You can also add guests.</div>')+'</div>';
+  return '<div class="g2" style="grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)">'+tiles+'<div class="panel" id="balance">'+balanceHTML(d.id)+'</div></div>';
+}
+function balanceHTML(id){var n=notesOf(id),ev=evenness(id),ps=participants(id),tot=0;ps.forEach(function(k){tot+=n.air[k]||0});
+  var col=ev===null?'var(--line)':ev>=75?'var(--ok)':ev>=60?'var(--hold)':'var(--bad)',s=ps.slice().sort(function(a,b){return (n.air[b]||0)-(n.air[a]||0)});
+  return '<h3>Airtime balance</h3><div class="row" style="gap:14px"><div class="ring lg" style="--p:'+(ev||0)+';--c:'+col+'"><span>'+(ev===null?'–':ev+'%')+'</span></div><div><b>'+(ev===null?'Needs 1 minute of talk':ev>=75?'Balanced':ev>=60?'Slightly uneven':'One voice dominates')+'</b><div class="small mut">100% means everyone spoke equally.</div></div></div>'+
+   (ev!==null&&ev<75&&s.length>1?'<div class="alert warn">'+ic('alert')+'<span><b>Prompt:</b> '+esc(nm(s[0]))+' has '+Math.round(100*(n.air[s[0]]||0)/tot)+'% of the talk. Ask <b>'+esc(nm(s[s.length-1]))+'</b> what they think.</span></div>':'')+
+   '<div class="grow"></div><div class="alert info" style="font-size:12.5px"><span>Woolley et al. (2010): groups where members spoke in more equal turns scored higher on collective intelligence (r = .41). A link, not a guarantee.</span></div>'}
+function tDecide(d){
+  var g=gates(d.id),sc=score(d.id),plan=d.plan||[],pp=paged(plan,'pl',innerHeight<800?2:3),ms=members(),done=plan.filter(taskDone).length;
+  var owners=[['_mgr','Manager']].concat(ms.map(function(u){return [u,nm(u)]}));
+  var left='<div class="panel"><div class="ph"><h3>Readiness</h3>'+ring(sc,'sm')+'</div>'+g.map(function(x){return '<button class="check'+(x.ok?' ok':'')+'" data-act="gate" data-tab="'+x.tab+'" data-sub="'+(x.sub||'')+'"><span class="dotc">'+(x.ok?ic('check',12):'')+'</span><span><b>'+x.label+'</b><small>'+esc(x.d)+'</small></span></button>'}).join('')+'</div>';
+  var mid='<div class="panel"><h3>The decision</h3><div><label class="lab">Our call</label><div class="seg vote" role="group" aria-label="Decision">'+optsOf(d).map(function(o){var on=d.call===o.id;return '<button data-act="call" data-v="'+o.id+'" aria-pressed="'+on+'"'+(on?' style="background:'+optColor(d,o.id)+'"':'')+'>'+esc(o.label)+'</button>'}).join('')+'</div></div>'+
+   '<div><label class="lab" for="reason">Why, in one sentence</label><input class="field" id="reason" value="'+esc(d.reason||'')+'" placeholder="We chose this because…"></div>'+
+   '<div><label class="lab" for="trip">What would change our call? (tripwire)</label><textarea class="field" id="trip" rows="2" placeholder="If more than 1 in 10 pilot customers react badly, we stop.">'+esc(d.tripwire||'')+'</textarea></div>'+
+   '<div class="row" style="flex-wrap:nowrap"><div class="grow"><label class="lab" for="review">Review date</label><input class="field" type="date" id="review" value="'+esc(d.review||'')+'"></div><div><label class="lab">Can we undo it?</label><span class="seg"><button data-act="door" data-v="two" aria-pressed="'+(d.door!=='one')+'">Easily</button><button data-act="door" data-v="one" aria-pressed="'+(d.door==='one')+'">Hardly</button></span></div></div>'+
+   (sc.n<sc.of&&d.door==='one'?'<div class="alert warn">'+ic('alert')+'<span>Hard to undo and '+(sc.of-sc.n)+' checks still open. Consider a pilot first.</span></div>':'')+'</div>';
+  var right='<div class="panel"><div class="ph"><h3>Action plan</h3><div class="row">'+pager('pl',pp)+'<button class="btn sm pri" data-act="genplan">'+ic('spark')+'Generate</button></div></div><div class="hint">Built from your open checks, alerts and challenges. Owners see tasks in their section.</div>'+
+   (pp.items.length?'<ul class="list">'+pp.items.map(function(p){var dn=taskDone(p);return '<li class="'+(dn?'done':'')+'" style="align-items:flex-start"><span class="t">'+(dn?'✓ ':'')+esc(p.text)+'<span class="row" style="margin-top:6px;gap:6px"><span class="pill">'+esc(p.src)+'</span><select class="field" style="padding:3px 6px;font-size:12px" data-act="powner" data-id="'+p.id+'" aria-label="Owner">'+owners.map(function(o){return '<option value="'+o[0]+'"'+(p.owner===o[0]?' selected':'')+'>'+esc(o[1])+'</option>'}).join('')+'</select><input type="date" class="field" style="width:auto;padding:3px 6px;font-size:12px" data-act="pdue" data-id="'+p.id+'" value="'+esc(p.due||'')+'" aria-label="Due date"></span></span><button class="x" data-act="delplan" data-id="'+p.id+'" aria-label="Delete">×</button></li>'}).join('')+'</ul>':'<div class="empty">Press Generate, or ask the AI assistant to draft a plan.</div>')+
+   '<div class="grow"></div><div class="row"><div class="bar grow" style="flex:1"><i style="width:'+(plan.length?Math.round(100*done/plan.length):0)+'%;background:var(--ok)"></i></div><span class="small dim">'+done+' / '+plan.length+' done</span></div></div>';
+  return '<div class="g3" style="grid-template-columns:minmax(0,.95fr) minmax(0,1fr) minmax(0,1.2fr)">'+left+mid+right+'</div>';
+}
+function tReport(d){
+  var a=liveAgg(d.id),sc=score(d.id);
+  return '<div class="g2" style="grid-template-columns:minmax(0,1fr) 260px"><div class="panel sheet"><div class="row between" style="flex-wrap:nowrap"><div><div class="eyebrow">Decision report · '+esc(TEAM)+'</div><h2>'+esc(d.title)+'</h2></div><div class="row" style="flex-wrap:nowrap">'+ring(sc)+(a.n?'<div style="width:170px">'+voteBars(d,a.votes,a.n)+'</div>':'')+'</div></div>'+
+   (EXEC[d.id]?'<div class="alert info"><span><b>Executive summary.</b> '+esc(EXEC[d.id])+'</span></div>':'')+'<div class="cols">'+mdHTML(reportMD(d.id,true))+'</div></div>'+
+   '<div class="panel"><h3>Share the report</h3><div class="hint">The preview shows highlights. Copy, download and print include everything.</div><button class="btn pri" data-act="copyrep">'+ic('copy')+'Copy report</button><button class="btn" data-act="dlrep">'+ic('doc')+'Download (.md)</button><button class="btn" data-act="printrep">'+ic('print')+'Print or save PDF</button>'+
+   '<button class="btn ai" data-act="ai" data-v="summary"'+(AIBUSY[d.id+':summary']?' disabled':'')+'>'+(AIBUSY[d.id+':summary']?'<span class="spinner"></span>Writing…':ic('spark')+'Executive summary')+'</button><div class="grow"></div><div class="small dim">'+(AION?'Summary written by Claude.':'Summary from built-in rules (AI is off).')+'</div></div></div>';
+}
+function tLearn(d){
+  if(stageIdx(d)<3)return '<div class="panel center"><div style="max-width:420px;display:grid;gap:8px"><h2>Learn comes after the decision</h2><div class="mut">Publish the decision first. On the review date, come back here to judge the outcome and the process separately.</div></div></div>';
+  var o=d.outcome||{},pr=o.process||(score(d.id).n>=6?'good':'poor'),res=o.result||'';
+  var q=function(p,r,t,s){var on=res&&pr===p&&res===r;return '<div class="q'+(on?' on':'')+'"><b>'+t+'</b>'+s+'</div>'};
+  return '<div class="g2"><div class="panel"><h3>What happened?</h3><div><label class="lab">The outcome</label><span class="seg"><button data-act="ores" data-v="good" aria-pressed="'+(res==='good')+'">Good outcome</button><button data-act="ores" data-v="bad" aria-pressed="'+(res==='bad')+'">Bad outcome</button></span></div>'+
+   '<div><label class="lab">The process</label><span class="seg"><button data-act="oproc" data-v="good" aria-pressed="'+(pr==='good')+'">Sound</button><button data-act="oproc" data-v="poor" aria-pressed="'+(pr==='poor')+'">Weak</button></span><div class="small dim" style="margin-top:4px">Suggested from readiness when you published: '+(d.readyAt!=null?d.readyAt+' of 8 checks clear':'n/a')+'.</div></div>'+
+   '<div><label class="lab" for="lesson">The lesson for next time</label><textarea class="field" id="lesson" rows="3" placeholder="Next time we will…">'+esc(o.lesson||'')+'</textarea></div><div class="row"><button class="btn pri" data-act="savelearn"'+(res?'':' disabled')+'>Save the lesson</button>'+(d.stage==='learned'?'<span class="pill ok">Saved · shared with the team</span>':'')+'</div></div>'+
+   '<div class="panel"><h3>Judge the decision, not just the result</h3><div class="hint">A good process can meet bad luck. A bad process can get lucky. Only one of them is repeatable.</div><div class="quad grow"><span class="ax" style="writing-mode:vertical-rl;transform:rotate(180deg)">Sound process</span>'+q('good','good','Earned success','Repeat this process')+q('good','bad','Bad luck','Keep the process, review the risk')+'<span class="ax" style="writing-mode:vertical-rl;transform:rotate(180deg)">Weak process</span>'+q('poor','good','Lucky outcome','Do not copy this')+q('poor','bad','Avoidable failure','New Coke, 1985')+'<span></span><span class="ax">Good outcome</span><span class="ax">Bad outcome</span></div></div></div>';
+}
+
+/* ---- AI drawer ---- */
+function aiDrawer(){
+  var d=DEC[UI.dec];if(!d)return;var R=AIRES[d.id]||{};
+  var src=function(r){return r?'<span class="src" style="color:'+(r.src==='ai'?'var(--acc2)':'var(--ink3)')+'">'+(r.src==='ai'?'✨ Claude AI':'Built-in rules')+'</span>':''};
+  var tool=function(task,title,desc,res,actions){var busy=AIBUSY[d.id+':'+task];return '<div class="aitool"><div class="row between"><b>'+title+'</b><button class="btn sm ai" data-act="ai" data-v="'+task+'"'+(busy?' disabled':'')+'>'+(busy?'<span class="spinner"></span>':ic('spark'))+(res?'Run again':'Run')+'</button></div><div class="small mut">'+desc+'</div>'+(res?'<div class="aires">'+src(res)+res.html+(actions?'<div class="row">'+actions+'</div>':'')+'</div>':'')+'</div>'};
+  var li=function(a){return '<ul>'+(a||[]).map(function(x){return '<li>'+esc(typeof x==='string'?x:(x.text||''))+'</li>'}).join('')+'</ul>'};
+  var dv=R.devil&&{src:R.devil.src,html:'<b>Strongest case against</b>'+li(R.devil.data.arguments)+'<b>Unanswered questions</b>'+li(R.devil.data.questions)};
+  var scn=R.scan&&{src:R.scan.src,html:'<div>'+esc(R.scan.data.overall||'')+'</div>'+((R.scan.data.traps||[]).length?'<ul>'+R.scan.data.traps.map(function(t){var tr=TRAPS[t.id]||{name:t.id};return '<li><b>'+esc(tr.name)+':</b> '+esc(t.evidence||'')+' <span class="dim">Fix: '+esc(t.fix||tr.fix||'')+'</span></li>'}).join('')+'</ul>':'')};
+  var asm=R.assume&&{src:R.assume.src,html:'<b>Assumptions</b>'+li((R.assume.data.assumptions||[]).map(function(a){return a.text+(a.critical?' (critical)':'')}))+'<b>Risks</b>'+li((R.assume.data.risks||[]).map(function(r){return r.text}))};
+  var pl=R.plan&&{src:R.plan.src,html:li((R.plan.data.actions||[]).map(function(a){return a.text+' · '+(a.days||7)+' days'}))};
+  var sm=R.summary&&{src:R.summary.src,html:'<div>'+esc(R.summary.data.summary||'')+'</div>'};
+  $('#layer').innerHTML='<div class="drawer" data-act="aiclose"><div class="dr" role="dialog" aria-label="AI assistant"><div class="row between"><div><div class="eyebrow">'+(AION?'Powered by Claude':'Built-in rules · AI is off')+'</div><h2>AI assistant</h2></div><button class="x" data-act="aiclose" aria-label="Close" style="font-size:22px">×</button></div>'+
+   '<div class="small mut">Tools that attack the ways smart teams go wrong. The AI only sees the decision and anonymous answers, never names.</div>'+
+   tool('devil','AI devil’s advocate','Argues against where the team is leaning. Fights groupthink and confirmation bias.',dv,dv?'<button class="btn sm" data-act="aiadd" data-v="devil">Add as challenges</button>':'')+
+   tool('scan','Bias scan','Reads the private answers and challenges and looks for the six traps.',scn,scn&&(R.scan.data.traps||[]).length?'<button class="btn sm" data-act="aiadd" data-v="scan">Add counter-moves to plan</button>':'')+
+   tool('assume','Hidden assumptions and risks','Lists what must be true and what could go wrong.',asm,asm?'<button class="btn sm" data-act="aiadd" data-v="assume">Add to Evidence</button>':'')+
+   tool('plan','Draft the action plan','Turns the open gaps into concrete actions with dates.',pl,pl?'<button class="btn sm" data-act="aiadd" data-v="plan">Add to plan</button>':'')+
+   tool('summary','Executive summary','Three sentences for your boss: ready or not, the main issue, the next step.',sm,'')+'</div></div>';
+}
+
+/* ---- team ---- */
+function vTeam(){
+  var ms=members(),pg=paged(ms,'team',7),decs=decList();
+  var rows=pg.items.map(function(u){var p=PEOPLE[u],ans=decs.filter(function(d){return p.d&&p.d[d.id]&&p.d[d.id].vote}).length,tasks=0,dn=0;
+    decs.forEach(function(d){(d.plan||[]).forEach(function(t){if(t.owner===u){tasks++;if(taskDone(t))dn++}})});
+    var roles=decs.filter(function(d){return d.devil===u&&stageIdx(d)<3}).length;
+    return '<tr><td><span class="row" style="flex-wrap:nowrap">'+avatar(u,26)+'<b>'+esc(nm(u))+'</b>'+(p.role==='manager'?'<span class="pill">Manager</span>':'')+'</span></td><td>'+fmtD(new Date(p.joined).toISOString())+'</td><td>'+ans+' / '+decs.length+'</td><td>'+dn+' / '+tasks+'</td><td>'+(roles?'<span class="pill acc">Devil’s advocate</span>':'')+'</td></tr>'}).join('');
+  var hist=decs.slice(0,5).reverse().map(function(d){var a=liveAgg(d.id);return {t:d.title,s:a.safeN?a.safety:0}});
+  return head('Team',ms.length+' in the room')+
+   '<div class="page g2" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)"><div class="panel"><div class="ph"><h2>Members</h2>'+pager('team',pg)+'</div>'+(ms.length?'<table class="t"><thead><tr><th>Name</th><th>Joined</th><th>Answered</th><th>Tasks done</th><th>Role</th></tr></thead><tbody>'+rows+'</tbody></table>':'<div class="empty">Nobody has joined yet.</div>')+
+   '<div class="grow"></div><div class="small dim">People appear after they join with the room code.</div></div>'+
+   '<div class="panel"><h3>Psychological safety by decision</h3><div class="hint">From the 3 Edmondson-style questions in every Share step. Below 3.5 is a warning.</div>'+(hist.length?bars3d('safety',hist.map(function(h,i){return {label:lh(h.t,12),v:h.s,t:h.s?h.s.toFixed(1):'–',col:h.s&&h.s<3.5?'#d8492f':'#2e9e6a'}}),5,'230px',{H:110,w:34,gap:22}):'<div class="empty">No answers yet.</div>')+'</div></div>';
+}
+/* ---- playbook ---- */
+function vPlaybook(){
+  return head('Playbook: how does a smart team make a bad decision?','The research behind this tool, from our presentation.')+
+  '<div class="page g3" style="grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) minmax(0,1fr)">'+
+   '<div class="panel dark"><div class="eyebrow">Case study · 1985</div><h2>New Coke</h2><div class="mut small">A smart team with huge data made a famous bad call. The taste tests measured taste, not the bond with the brand.</div>'+
+    '<div class="stat3"><div><b>~200k</b><small>taste tests said yes</small></div><div><b>1 in 10</b><small>testers reacted angrily</small></div><div><b>79</b><small>days until the original came back</small></div></div>'+
+    '<div class="mut small"><b style="color:#fff">The lesson:</b> the warning signal existed. The process did not bring it to the table.</div><div class="grow"></div><div class="small" style="color:#9a978f">Sources: The Coca-Cola Company (company history); Pendergrast (1993) for the 1-in-10 figure.</div>'+(VIEWAS==='manager'?'<button class="btn" data-act="casestudy" style="align-self:flex-start">Practice this case with your team</button>':'')+'</div>'+
+   '<div class="panel"><div class="ph"><h3>What made groups smarter</h3><span class="small dim">Woolley et al., Science (2010)</span></div>'+bars3d('woolley',WOOLLEY.map(function(w,i){return {label:w[0],v:w[1],t:'.'+String(Math.round(w[1]*100)),col:i===0?'#e4572e':i===1?'#d99a1c':'#8a8f9e'}}),.45,innerHeight<800?'120px':'165px',{H:innerHeight<800?70:100,w:30,gap:22,rz:-14})+
+    '<div class="small mut">Even turn-taking and social sensitivity mattered more than the smartest member’s IQ (699 people, 192 groups; association, not causation).</div>'+
+    '<h3>Six traps that catch smart teams <span class="dim small" style="font-weight:500">· tap to flip</span></h3><div class="g3" style="gap:8px;grid-template-rows:repeat(2,'+(innerHeight<800?'100px':'118px')+')">'+TRAP_IDS.map(function(t){var x=TRAPS[t];return '<button class="flip" data-act="flip" aria-pressed="false" aria-label="'+esc(x.name)+'"><span class="in"><span class="fc"><b>'+x.name+'</b><small>'+esc(x.q)+'</small><span class="hintf">Tap for the fix</span></span><span class="fc back"><b>Fix</b><small>'+esc(x.fix)+'</small><span class="hintf" style="color:#a9a69f">'+x.src+'</span></span></span></button>'}).join('')+'</div></div>'+
+   '<div class="panel"><h3>How the tool answers the question</h3><div class="flow4">'+
+    '<div><span class="n">1</span><span><b>Share · What do we know?</b><small>Private vote, confidence, what each person knows that others might not, and a safety check.</small></span></div>'+
+    '<div><span class="n">2</span><span><b>Challenge · What haven’t we tested?</b><small>Reveal together, then devil’s advocate, pre-mortems, criteria and balanced airtime.</small></span></div>'+
+    '<div><span class="n">3</span><span><b>Decide · What would change our call?</b><small>Eight readiness checks, a tripwire and a plan with owners and dates.</small></span></div>'+
+    '<div><span class="n">4</span><span><b>Learn</b><small>Judge the process and the outcome separately, then keep the lesson.</small></span></div></div>'+
+    '<div class="grow"></div><div class="alert info small"><span>“Good decisions depend on how knowledge is shared, challenged and used.”</span></div></div></div>';
+}
+
+/* ---- team member pages ---- */
+function joined(){return !!(PEOPLE[UID]&&PEOPLE[UID].joined)}
+function teamInbox(){var me=PEOPLE[UID]||{d:{}};return decList().filter(function(d){return stageIdx(d)<=1}).map(function(d){var x=(me.d||{})[d.id]||{},s=stageIdx(d);return {d:d,stage:s,done:s===0?!!x.vote:!!x.chTs,x:x}})}
+function myTasks(){var out=[];decList().forEach(function(d){if(stageIdx(d)>=3)(d.plan||[]).forEach(function(t){if(t.owner===UID)out.push({d:d,t:t})})});return out}
+function previewBanner(){return VIEWAS==='team'&&ISMGR?'<div class="banner"><span>'+(SES.mode==='local'?'Practice mode: you are answering as '+esc(bare(UID))+'. Switch person at the bottom left.':'You are previewing your team’s section. Answers you give here count as your own.')+'</span><button class="btn sm" data-act="viewas">Back to manager view</button></div>':''}
+function vInbox(){
+  var items=teamInbox(),pg=paged(items,'inbox',4),roles=decList().filter(function(d){return d.devil===UID&&stageIdx(d)<3});
+  return head('Inbox','Decisions waiting for your view. The vote stays sealed until everyone’s answers are revealed together.',pager('inbox',pg))+
+   '<div class="page" style="grid-template-rows:auto auto minmax(0,1fr);align-content:start">'+previewBanner()+
+   (roles.length?'<div class="alert warn">'+ic('flag')+'<span><b>You are the devil’s advocate</b> for “'+esc(roles[0].title)+'”. Argue the strongest case against it. It is a role, not your opinion, so be bold.</span></div>':'<div></div>')+
+   (pg.items.length?'<div class="g2" style="grid-auto-rows:min-content;align-content:start">'+pg.items.map(function(it){var d=it.d;return '<div class="panel tilt" style="gap:8px"><div class="row between">'+stagePill(d)+(it.done?'<span class="pill ok">'+ic('check',12)+'Done</span>':'<span class="pill acc">Your turn</span>')+'</div><h2>'+esc(d.title)+'</h2><div class="mut small">'+esc(lh(d.question||'',140))+'</div><div class="row"><button class="btn '+(it.done?'':'pri')+'" data-act="respond" data-id="'+d.id+'">'+(it.stage===0?(it.done?'Edit my view':'Give your view'):(it.done?'Edit my challenge':'Challenge it'))+'</button><span class="small dim">'+(it.stage===0?'About 2 minutes · '+(d.anonymous?'anonymous':'your manager sees your name'):'Results are in. Now push back.')+'</span></div></div>'}).join('')+'</div>':'<div class="panel center"><div style="display:grid;gap:6px;justify-items:center"><h2>Nothing needs you right now</h2><div class="mut">New decisions from your manager appear here automatically.</div></div></div>')+'</div>';
+}
+function form(id){var me=myDoc(),x=me.d[id]||{};if(!FORM[id])FORM[id]={vote:x.vote||'',conf:x.conf||0,know:x.know||'',why:x.why||'',sa:(x.sa||[0,0,0]).slice(),pre:x.pre||'',concern:x.concern||'',mind:x.mind||'',traps:(x.traps||[]).slice()};return FORM[id]}
+function vRespond(){
+  var d=DEC[UI.dec];if(!d){UI.page='inbox';return vInbox()}
+  var f=form(d.id),s=stageIdx(d),anon=d.anonymous?'Anonymous: your manager sees the answers, not who gave them.':'Your manager will see your name next to your answers.';
+  var crumb='<div class="crumb"><button data-act="go" data-page="inbox">Inbox</button> / '+STAGE_LABEL[d.stage]+'</div>',opts=optsOf(d);
+  if(s===0){
+    var can=f.vote&&f.conf&&f.sa.every(function(z){return z>0}),busy=AIBUSY[d.id+':coach'];
+    return head(d.title,esc(d.question||''),'<button class="btn pri" data-act="submitshare"'+(can?'':' disabled')+'>Submit my view</button>',crumb)+
+    '<div class="page" style="grid-template-rows:auto minmax(0,1fr)"><div class="alert info small"><span>'+ic('lock')+'</span><span>'+anon+' Answer before you talk to anyone.'+(d.context?' <b>Context:</b> '+esc(lh(d.context,220)):'')+'</span></div>'+
+    '<div class="g3"><div class="panel"><div class="eyebrow">1 · Your position</div><h3>What would you do?</h3><div class="opts" style="grid-template-columns:repeat('+Math.min(opts.length,3)+',minmax(0,1fr))">'+opts.map(function(o){var on=f.vote===o.id,c=optColor(d,o.id);return '<button class="opt" data-act="f" data-k="vote" data-v="'+o.id+'" aria-pressed="'+on+'"'+(on?' style="border-color:'+c+';box-shadow:inset 0 0 0 1px '+c+'"':'')+'>'+esc(o.label)+(o.sub?'<small>'+esc(o.sub)+'</small>':'')+'</button>'}).join('')+'</div><label class="lab" style="margin-top:6px">How sure are you? (1 guessing, 5 certain)</label><div class="scale">'+[1,2,3,4,5].map(function(n){return '<button data-act="f" data-k="conf" data-v="'+n+'" aria-pressed="'+(f.conf===n)+'">'+n+'</button>'}).join('')+'</div>'+
+     '<div class="grow"></div><div class="aitool" style="padding:10px"><div class="row between"><b class="small">Help me think</b><button class="btn sm ai" data-act="coach"'+(busy?' disabled':'')+'>'+(busy?'<span class="spinner"></span>':ic('spark'))+'Ask</button></div>'+(COACH[d.id]?'<div class="small">'+esc(COACH[d.id])+'</div>':'<div class="small dim">Get one question that helps you think for yourself.</div>')+'</div></div>'+
+    '<div class="panel"><div class="eyebrow">2 · What you bring</div><label class="lab" for="f-know">What do you know that others might not?</label><textarea class="field grow" id="f-know" data-f="know" placeholder="A customer comment, a number, something you saw…">'+esc(f.know)+'</textarea><label class="lab" for="f-why">Why do you hold your position?</label><textarea class="field" id="f-why" data-f="why" rows="3" placeholder="Because…">'+esc(f.why)+'</textarea></div>'+
+    '<div class="panel"><div class="eyebrow">3 · Speaking up</div><h3>How true is this for you?</h3><div class="small dim">1 strongly disagree · 5 strongly agree</div>'+SAFETY.map(function(q,i){return '<div class="qrow"><span class="small">'+esc(q)+'</span><div class="scale">'+[1,2,3,4,5].map(function(n){return '<button data-act="fsa" data-i="'+i+'" data-v="'+n+'" aria-pressed="'+(f.sa[i]===n)+'">'+n+'</button>'}).join('')+'</div></div>'}).join('')+'</div></div></div>';
+  }
+  var r=d.results||{n:0,votes:{}},devil=d.devil===UID,mx=Math.max.apply(null,opts.map(function(o){return (r.votes||{})[o.id]||0}).concat([1]));
+  return head(d.title,esc(d.question||''),'<button class="btn pri" data-act="submitch"'+((f.pre||'').trim().length>2?'':' disabled')+'>Submit my challenge</button>',crumb)+
+   '<div class="page" style="grid-template-rows:auto minmax(0,1fr)">'+(devil?'<div class="alert warn">'+ic('flag')+'<span><b>You are the devil’s advocate.</b> Argue the strongest case against. It is a role, so be bold.</span></div>':'<div class="alert info small"><span>'+anon+'</span></div>')+
+   '<div class="g3"><div class="panel" style="gap:6px"><div class="eyebrow">The team’s private vote</div>'+bars3d('t:'+d.id,opts.map(function(o){return {label:o.label,v:(r.votes||{})[o.id]||0,col:optColor(d,o.id)}}),mx,innerHeight<800?'130px':'160px',{H:innerHeight<800?70:95,w:36})+'<div class="small dim">'+r.n+' answers'+(r.safeN?' · safety '+r.safety.toFixed(1)+'/5':'')+'</div><label class="lab" for="f-pre">Pre-mortem: it’s a year from now and this failed. Why?</label><textarea class="field grow" id="f-pre" data-f="pre" placeholder="It failed because…">'+esc(f.pre)+'</textarea></div>'+
+   '<div class="panel"><div class="eyebrow">Push back</div><label class="lab" for="f-concern">Your biggest concern</label><textarea class="field grow" id="f-concern" data-f="concern" placeholder="What worries me is…">'+esc(f.concern)+'</textarea><label class="lab" for="f-mind">What evidence would change your mind?</label><textarea class="field grow" id="f-mind" data-f="mind" placeholder="I would change my view if…">'+esc(f.mind)+'</textarea></div>'+
+   '<div class="panel"><div class="eyebrow">Mind traps</div><h3>Do you see any of these happening?</h3><div class="row" style="gap:6px">'+TRAP_IDS.map(function(t){return '<button class="chip" data-act="ftrap" data-v="'+t+'" aria-pressed="'+(f.traps.indexOf(t)>-1)+'" title="'+esc(TRAPS[t].q)+'">'+TRAPS[t].name+'</button>'}).join('')+'</div><div class="small mut">'+(f.traps.length?esc(TRAPS[f.traps[f.traps.length-1]].q):'Tap any that apply. Optional.')+'</div></div></div></div>';
+}
+function vTasks(){
+  var t=myTasks(),pg=paged(t,'tasks',6),dn=t.filter(function(x){return taskDone(x.t)}).length;
+  return head('My tasks',dn+' of '+t.length+' done',pager('tasks',pg))+'<div class="page" style="grid-template-rows:auto minmax(0,1fr);align-content:start">'+previewBanner()+
+   '<div class="panel">'+(pg.items.length?'<ul class="list">'+pg.items.map(function(x){var dn=taskDone(x.t),late=!dn&&x.t.due&&x.t.due<addDays(0);return '<li class="'+(dn?'done':'')+'"><input type="checkbox" data-act="tdone" data-id="'+x.t.id+'" '+(dn?'checked':'')+' style="width:18px;height:18px;accent-color:var(--acc)" aria-label="Done"><span class="t"><b>'+esc(x.t.text)+'</b><span class="by">'+esc(x.d.title)+'</span></span><span class="pill '+(late?'bad':'')+'">Due '+fmtD(x.t.due)+'</span></li>'}).join('')+'</ul>':'<div class="empty">No tasks assigned to you. When your manager publishes a decision, your actions appear here.</div>')+'</div></div>';
+}
+function vResults(){
+  var decs=decList().filter(function(d){return stageIdx(d)>=1}),pg=paged(decs,'res',1),d=pg.items[0];
+  if(!d)return head('Decisions','')+'<div class="page" style="align-content:start">'+previewBanner()+'<div class="panel center" style="min-height:200px"><div class="mut">Results appear here once your manager reveals them.</div></div></div>';
+  var r=d.results||{n:0,votes:{}},s=stageIdx(d),mine=(d.plan||[]).filter(function(t){return t.owner===UID}),opts=optsOf(d),mx=Math.max.apply(null,opts.map(function(o){return (r.votes||{})[o.id]||0}).concat([1]));
+  return head('Decisions','Results the whole team can see. No names are shown.',pager('res',pg))+'<div class="page" style="grid-template-rows:'+(ISMGR&&VIEWAS==='team'?'auto ':'')+'minmax(0,1fr)">'+previewBanner()+
+   '<div class="g3"><div class="panel" style="gap:6px"><div class="row between">'+stagePill(d)+'<span class="small dim">'+r.n+' answers</span></div><h2>'+esc(d.title)+'</h2>'+bars3d('r:'+d.id,opts.map(function(o){return {label:o.label,v:(r.votes||{})[o.id]||0,col:optColor(d,o.id)}}),mx,innerHeight<800?'150px':'200px',{H:innerHeight<800?80:110,w:40})+(r.safeN?meter('Safety',r.safety,5,3.5):'')+'</div>'+
+   '<div class="panel"><h3>What the team said</h3>'+((r.pre||[]).concat(r.concern||[]).length?'<ul class="list">'+(r.pre||[]).concat(r.concern||[]).slice(0,4).map(function(t){return '<li class="soft"><span class="t">“'+esc(lh(t,120))+'”</span></li>'}).join('')+'</ul>':'<div class="empty">'+(s>=2?'No written challenges.':'Challenges appear here as the team responds.')+'</div>')+'</div>'+
+   '<div class="panel"><h3>The decision</h3>'+(s>=3?'<div class="row"><span class="pill" style="font-size:14px;padding:4px 12px;background:'+optColor(d,d.call)+';color:#fff">'+esc(optLabel(d,d.call))+'</span><span class="mut">'+esc(d.reason||'')+'</span></div>'+(d.tripwire?'<div class="alert warn small"><span><b>We will change course if:</b> '+esc(d.tripwire)+'</span></div>':'')+
+    (mine.length?'<div class="small"><b>Your tasks:</b> '+mine.map(function(t){return esc(t.text)}).join('; ')+'</div>':'')+(d.outcome&&d.outcome.result?'<div class="alert ok small"><span><b>Lesson ('+outcomeLabel(d.outcome)+'):</b> '+esc(d.outcome.lesson||'')+'</span></div>':''):'<div class="empty">Not decided yet.</div>')+'</div></div></div>';
+}
+
+/* ---- new decision ---- */
+var NEWTPL='launch';
+function newDecModal(){
+  var t=TEMPLATES[NEWTPL],opts=(t.opts||DEFOPTS).map(function(o){return o.label}).join(', ');
+  modal('<h2>New decision</h2><div><label class="lab">Template</label><div class="tpl">'+Object.keys(TEMPLATES).map(function(k){var x=TEMPLATES[k];return '<button data-act="tpl" data-v="'+k+'" aria-pressed="'+(NEWTPL===k)+'">'+x.name+'<small>'+x.sub+'</small></button>'}).join('')+'</div></div>'+
+   '<div><label class="lab" for="nd-t">Title</label><input class="field" id="nd-t" value="'+esc(t.title)+'" placeholder="Launch the new pricing in March"></div>'+
+   '<div><label class="lab" for="nd-q">The question the team answers</label><input class="field" id="nd-q" value="'+esc(t.q)+'" placeholder="Should we launch the new pricing to all customers in March?"></div>'+
+   '<div><label class="lab" for="nd-o">Answer options (comma separated, 2 to 5)</label><input class="field" id="nd-o" value="'+esc(opts)+'"></div>'+
+   '<div><label class="lab" for="nd-c">Context (optional)</label><textarea class="field" id="nd-c" rows="2" placeholder="Data, deadlines, constraints the team needs."></textarea></div>'+
+   '<label class="row small" style="align-items:flex-start;flex-wrap:nowrap"><input type="checkbox" id="nd-a" checked style="margin-top:3px"><span><b>Anonymous input</b><br><span class="dim">You see what was said, not who said it. Recommended when you are senior or the topic is sensitive.</span></span></label>'+
+   '<div class="row" style="justify-content:flex-end"><button class="btn ghost" data-act="closemodal">Cancel</button><button class="btn pri" data-act="createdec">Create and open</button></div>');
+}
+function parseOpts(s){var parts=String(s||'').split(',').map(function(x){return x.trim()}).filter(Boolean).slice(0,5);if(parts.length<2)return null;
+  var std=['Go','Hold','No-go'];if(parts.length===3&&parts.every(function(p,i){return p.toLowerCase()===std[i].toLowerCase()}))return null;
+  return parts.map(function(p,i){return {id:'o'+(i+1),label:p.slice(0,24),sub:''}})}
+function createDec(o,notes){
+  var id=rid(),d=Object.assign({id:id,stage:'share',created:Date.now(),anonymous:true,door:'two',plan:[]},o);
+  NOTES[id]=notes||{};notesOf(id);saveDec(d);saveNotes(id);
+  UI.page='dec';UI.dec=id;UI.tab='share';UI.pg={};UI.enter=true;render();
+}
+function caseStudy(){
+  createDec({practice:true,template:'launch',title:'Replace the original Coke with the new formula',question:'Should we stop selling the original Coca-Cola and launch the sweeter new formula nationwide in April?',
+    context:'Practice case from our presentation (Coca-Cola, 1985). About 200,000 taste tests preferred the new, sweeter formula. About 1 in 10 testers reacted angrily to the idea of changing Coke. Pepsi has been gaining share for years.',door:'one'},
+   {assumptions:[{id:rid(),text:'People who prefer the taste will buy the new formula',ev:2,critical:false},{id:rid(),text:'Loyal customers will accept losing the original',ev:0,critical:true}],
+    risks:[{id:rid(),text:'Backlash from loyal customers against removing the original',l:2,i:3,undo:false,fix:''}],criteria:[{id:rid(),name:'Taste preference',w:3},{id:rid(),name:'Customer loyalty',w:5},{id:rid(),name:'Competitive pressure',w:3}]});
+  toast('Practice case created. Invite your team to answer.');
+}
+
+/* ============ render ============ */
+var MPAGES=['home','team','playbook','dec','room'],TPAGES=['inbox','tasks','results','playbook','respond'];
+var VIEW={home:vHome,team:vTeam,playbook:vPlaybook,dec:vDec,room:vRoom,inbox:vInbox,tasks:vTasks,results:vResults,respond:vRespond};
+function render(){
+  var app=$('#app');
+  if(!SES){app.innerHTML=vLanding();return}
+  if(!$('#side'))app.innerHTML='<div class="shell"><aside class="side" id="side" aria-label="Navigation"></aside><main class="main" id="main"></main></div>';
+  if(VIEWAS==='manager'&&MPAGES.indexOf(UI.page)<0)UI.page='home';
+  if(VIEWAS==='team'&&TPAGES.indexOf(UI.page)<0)UI.page='inbox';
+  renderSide();var m=$('#main');m.className='main'+(UI.enter?' enter':'');m.innerHTML=(VIEW[UI.page]||vHome)();UI.enter=false;
+  if(UI.page==='room'||UI.page==='home')drawQR();
+  if($('.drawer'))aiDrawer();
+}
+var deferred=false;
+function softRender(){var ae=document.activeElement;if(ae&&$('#main')&&$('#main').contains(ae)&&/INPUT|TEXTAREA|SELECT/.test(ae.tagName)){deferred=true;renderSide();return}if($('.modal'))return renderSide();render()}
+document.addEventListener('focusout',function(){if(deferred){deferred=false;setTimeout(function(){var ae=document.activeElement;if(!(ae&&/INPUT|TEXTAREA|SELECT/.test(ae.tagName)))render()},60)}});
+
+/* ============ airtime timer ============ */
+var lastTick=Date.now(),ticks=0;
+setInterval(function(){
+  var now=Date.now(),dt=Math.min(now-lastTick,5000);lastTick=now;
+  if(!SES||UI.page!=='dec'||!UI.dec||!NOTES[UI.dec]||!NOTES[UI.dec].active)return;
+  var n=NOTES[UI.dec],k=n.active;n.air[k]=(n.air[k]||0)+dt;ticks++;
+  if(UI.tab==='challenge'&&UI.sub==='meeting'){var ps=participants(UI.dec),tot=0;ps.forEach(function(p){tot+=n.air[p]||0});
+    ps.forEach(function(p){var e=document.getElementById('at-'+p),b=document.getElementById('ab-'+p);if(e)e.textContent=fmtT(n.air[p]||0)+' · '+Math.round(100*(n.air[p]||0)/tot)+'% · '+(n.turns[p]||0)+' turns';if(b)b.style.width=Math.round(100*(n.air[p]||0)/tot)+'%'});
+    if(ticks%8===0){var bl=$('#balance');if(bl)bl.innerHTML=balanceHTML(UI.dec)}}
+  if(ticks%40===0)saveNotes(UI.dec);
+},250);
+
+/* ============ sessions & routing ============ */
+function remember(s){var list=LS.get('decision-room.sessions',[]).filter(function(x){return !(x.code===s.code&&x.mid===s.mid)});list.unshift(s);LS.set('decision-room.sessions',list.slice(0,6));LS.set('decision-room.current',s)}
+function startSession(s){
+  SES=s;ISMGR=!!s.key||s.mode==='local';VIEWAS=ISMGR?'manager':'team';UID=s.mid;MYNAME=s.name||'';TEAM=s.team||'';NAMES[UID]=MYNAME;
+  UI={page:ISMGR?'home':'inbox',dec:null,tab:'share',sub:'dissent',pg:{},confirm:{},enter:true};DEC={};NOTES={};PEOPLE={};LASTSIG='';
+  if(s.mode==='local'){loadLocal();UID='m_local';MYNAME=bare('m_local')}
+  else{PEOPLE[UID]={mid:UID,name:MYNAME,joined:Date.now(),d:{},done:{},role:ISMGR?'manager':'member'};api('GET','health').then(function(h){AION=!!h.ai;renderSide()}).catch(function(){});poll()}
+  if(s.mode!=='local')remember(s);else LS.set('decision-room.current',{mode:'local'});
+  history.replaceState(null,'',location.pathname);render();
+}
+function leave(){LS.del('decision-room.current');if(SES&&SES.mode==='net'){var list=LS.get('decision-room.sessions',[]).filter(function(x){return !(x.code===SES.code&&x.mid===SES.mid)});LS.set('decision-room.sessions',list)}SES=null;closeModal();history.replaceState(null,'',location.pathname);render()}
+function route(){
+  var h=location.hash.slice(1),p={};h.split('&').forEach(function(kv){var i=kv.indexOf('=');if(i>0)p[kv.slice(0,i)]=decodeURIComponent(kv.slice(i+1))});
+  if(p.room&&p.key){var c=p.room.toUpperCase();SES=null;render();
+    api('GET','room?'+qs({code:c,key:p.key})).then(function(r){var me=(r.members||[]).filter(function(m){return m.role==='manager'})[0]||{};
+      var known=LS.get('decision-room.sessions',[]).filter(function(x){return x.code===c&&x.key===p.key})[0];
+      startSession(known||{mode:'net',code:c,key:p.key,mid:r.room.managerMid||me.mid,tok:'',name:me.name||'Manager',team:r.room.team})}).catch(function(e){toast(e.message||'Could not open the room')});return}
+  if(p.join){SES=null;render();joinModal(p.join.toUpperCase());return}
+  var cur=LS.get('decision-room.current',null);
+  if(cur&&cur.mode==='local')return startSession({mode:'local'});
+  if(cur&&cur.code)return startSession(cur);
+  render();
+}
+
+/* ============ events ============ */
+var V=function(id){var e=document.getElementById(id);return e?e.value:''};
+function dlFile(name,text,type){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:type||'text/markdown'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500)}
+function copy(text,msg){var ok=function(){toast(msg||'Copied')},fb=function(){var ta=document.createElement('textarea');ta.value=text;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');ok()}catch(e){toast('Select and copy manually')}ta.remove()};try{navigator.clipboard.writeText(text).then(ok,fb)}catch(e){fb()}}
+function printReport(id){var d=DEC[id],html='<!doctype html><html><head><meta charset="utf-8"><title>'+esc(d.title)+'</title><style>body{font-family:Inter,Arial,sans-serif;color:#1b1c22;max-width:760px;margin:30px auto;padding:0 20px;font-size:13px;line-height:1.5}h1{font-family:Georgia,serif;font-size:24px}h4{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#c9441d;margin:18px 0 4px}ul{padding-left:18px}</style></head><body><h1>'+esc(d.title)+'</h1>'+mdHTML(reportMD(id,false))+'</body></html>';
+  var f=document.createElement('iframe');f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0';document.body.appendChild(f);f.contentDocument.open();f.contentDocument.write(html);f.contentDocument.close();setTimeout(function(){try{f.contentWindow.focus();f.contentWindow.print()}catch(e){toast('Printing is blocked here')}setTimeout(function(){f.remove()},2000)},250)}
+function slug(s){return (String(s).replace(/[^\w\- ]+/g,'').trim().replace(/\s+/g,'-').toLowerCase()||'decision')}
+function aiAdd(task){
+  var d=DEC[UI.dec],n=notesOf(d.id),r=(AIRES[d.id]||{})[task];if(!r)return;var x=r.data,c=0;
+  if(task==='devil'){(x.arguments||[]).forEach(function(t){n.concerns.push({id:rid(),text:t,by:'_ai',kind:'AI devil’s advocate'});c++});saveNotes(d.id);UI.tab='challenge';UI.sub='dissent'}
+  if(task==='assume'){(x.assumptions||[]).forEach(function(a){if(!n.assumptions.some(function(y){return y.text===a.text})){n.assumptions.push({id:rid(),text:a.text,ev:0,critical:!!a.critical});c++}});
+    (x.risks||[]).forEach(function(r2){if(!n.risks.some(function(y){return y.text===r2.text})){n.risks.push({id:rid(),text:r2.text,l:clamp(+r2.l||2,1,3),i:clamp(+r2.i||2,1,3),undo:false,fix:r2.fix||''});c++}});saveNotes(d.id);UI.tab='challenge';UI.sub='evidence'}
+  if(task==='plan'||task==='scan'){d.plan=d.plan||[];var items=task==='plan'?(x.actions||[]).map(function(a){return {text:a.text,days:+a.days||7,src:r.src==='ai'?'AI':'Plan'}}):(x.traps||[]).map(function(t){return {text:(TRAPS[t.id]||{}).act||t.fix,days:3,src:'Mind trap'}});
+    items.forEach(function(a){if(a.text&&!d.plan.some(function(p){return p.text===a.text})){d.plan.push({id:rid(),key:'ai:'+rid(),text:a.text,src:a.src,owner:'_mgr',due:addDays(a.days)});c++}});saveDec(d);UI.tab='decide'}
+  closeModal();toast(c?c+' item'+(c>1?'s':'')+' added':'Nothing new to add');
+}
+document.addEventListener('click',function(ev){
+  var b=ev.target.closest('[data-act]');if(!b)return;
+  if(b.tagName==='SELECT'||(b.tagName==='INPUT'&&(b.type==='checkbox'||b.type==='date'||b.type==='file')))return;
+  var act=b.getAttribute('data-act'),id=b.getAttribute('data-id'),v=b.getAttribute('data-v'),d=UI.dec&&DEC[UI.dec],n=d&&notesOf(d.id);
+  if((act==='closemodal'||act==='aiclose')&&(b.classList.contains('modal')||b.classList.contains('drawer'))&&ev.target!==b)return;
+  switch(act){
+   /* landing */
+   case 'create':createModal();return;
+   case 'joinform':joinModal('');return;
+   case 'trylocal':startSession({mode:'local'});return;
+   case 'resume':var ss=LS.get('decision-room.sessions',[])[+b.getAttribute('data-i')];if(ss)startSession(ss);return;
+   case 'docreate':var cn=V('c-name').trim(),ct=V('c-team').trim();if(cn.length<2){toast('Enter your name');return}b.disabled=true;
+     api('POST','rooms',{name:cn,team:ct}).then(function(r){closeModal();startSession({mode:'net',code:r.code,key:r.key,mid:r.mid,tok:r.tok,name:r.name,team:r.team});UI.page='room';render();toast('Room created. Share the code with your team.')})
+      .catch(function(e){b.disabled=false;toast(e.status===404||!e.status?'The online room service is not available here. Deploy to Netlify, or use “Try on this device”.':e.message)});return;
+   case 'dojoin':var jc=V('j-code').trim().toUpperCase(),jn=V('j-name').trim();if(jc.length!==6){toast('The code has 6 characters');return}if(jn.length<2){toast('Enter your name');return}b.disabled=true;
+     api('POST','join',{code:jc,name:jn}).then(function(r){closeModal();startSession({mode:'net',code:r.code,mid:r.mid,tok:r.tok,name:r.name,team:r.team});toast('Welcome to '+r.team)})
+      .catch(function(e){b.disabled=false;toast(e.status?e.message:'Could not reach the room service')});return;
+   case 'closemodal':closeModal();return;
+   case 'aiclose':closeModal();return;
+   /* nav */
+   case 'go':UI.page=b.getAttribute('data-page');if(UI.page!=='dec'&&UI.page!=='respond')UI.dec=null;UI.enter=true;break;
+   case 'open':UI.page='dec';UI.dec=id;UI.tab=b.getAttribute('data-tab')||({0:'share',1:'challenge',2:'decide',3:'decide',4:'learn'})[stageIdx(DEC[id])];UI.pg={};UI.enter=true;break;
+   case 'tab':UI.tab=v;UI.enter=true;break;
+   case 'sub':UI.sub=v;break;
+   case 'gate':UI.tab=b.getAttribute('data-tab');if(b.getAttribute('data-sub'))UI.sub=b.getAttribute('data-sub');UI.enter=true;break;
+   case 'pg':var k=b.getAttribute('data-k');UI.pg[k]=(UI.pg[k]||0)+(+b.getAttribute('data-d'));break;
+   case 'viewas':VIEWAS=VIEWAS==='manager'?'team':'manager';UI.page=VIEWAS==='manager'?'home':'inbox';UI.dec=null;UI.enter=true;
+     if(SES.mode==='local'){if(VIEWAS==='team'){var others=members().filter(function(m){return PEOPLE[m].role!=='manager'});if(!others.length){addLocalPerson();return}UID=others[0]}else UID='m_local'}break;
+   case 'leave':if(ISMGR&&SES.mode==='net'&&!confirmed('leave'))return;leave();return;
+   case 'copy':copy(v==='invite'?inviteLink():managerLink(),v==='invite'?'Invite link copied':'Manager link copied. Keep it private.');return;
+   case 'export':dlFile('decision-room-backup-'+addDays(0)+'.json',JSON.stringify({app:'decision-room',v:1,team:TEAM,decisions:DEC,notes:NOTES},null,1),'application/json');return;
+   case 'theme':LS.set('dr.theme',v);applyTheme();break;
+   case 'flip':b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')==='true'?'false':'true');return;
+   /* decisions */
+   case 'newdec':newDecModal();return;
+   case 'tpl':NEWTPL=v;newDecModal();return;
+   case 'createdec':var t=V('nd-t').trim();if(!t){$('#nd-t').focus();toast('Give the decision a title');return}
+     var tp=TEMPLATES[NEWTPL],notes={assumptions:tp.as.map(function(x){return {id:rid(),text:x[0],ev:0,critical:x[1]}}),risks:tp.rk.map(function(x){return {id:rid(),text:x[0],l:x[1],i:x[2],undo:false,fix:''}})};
+     createDec({title:t,question:V('nd-q').trim()||t+'?',context:V('nd-c').trim(),anonymous:$('#nd-a').checked,options:parseOpts(V('nd-o')),template:NEWTPL},notes);closeModal();return;
+   case 'casestudy':caseStudy();return;
+   case 'deldec':if(!confirmed('deldec'))return;delete DEC[d.id];delete NOTES[d.id];put('decisions/x');UI.page='home';UI.dec=null;toast('Decision deleted');break;
+   case 'reveal':d.results=publicResults(d.id);d.stage='challenge';d.revealedAt=Date.now();saveDec(d);UI.tab='share';PLAYED['v:'+d.id]=0;toast('Revealed. Your team can now challenge it.');break;
+   case 'todecide':d.results=publicResults(d.id);d.stage='decide';saveDec(d);UI.tab='decide';break;
+   case 'publish':if(!d.call){toast('Choose the decision first');UI.tab='decide';break}if(!(d.plan||[]).length)genPlan(d.id);d.results=publicResults(d.id);d.readyAt=score(d.id).n;d.stage='decided';d.publishedAt=Date.now();saveDec(d);toast('Published. Your team can see the decision and their tasks.');break;
+   case 'tolearn':UI.tab='learn';break;
+   case 'addch':var cht=V('newch').trim();if(!cht)return;n.concerns.push({id:rid(),text:cht,by:'_mgr'});saveNotes(d.id);break;
+   case 'delch':n.concerns=n.concerns.filter(function(c){return c.id!==id});saveNotes(d.id);break;
+   case 'answer':var key=b.getAttribute('data-k');if(n.ans[key])delete n.ans[key];else n.ans[key]=Date.now();saveNotes(d.id);break;
+   case 'alert2plan':var tr=TRAPS[v];d.plan=d.plan||[];if(d.plan.some(function(p){return p.key==='tr:'+v})){toast('Already in the plan');return}d.plan.push({id:rid(),key:'tr:'+v,text:tr.act,src:'Mind trap',owner:'_mgr',due:addDays(3)});saveDec(d);toast('Added to the action plan');break;
+   case 'addas':var at=V('newas').trim();if(!at)return;n.assumptions.push({id:rid(),text:at,ev:0,critical:$('#newcrit').checked});saveNotes(d.id);break;
+   case 'ev':n.assumptions.forEach(function(x){if(x.id===id)x.ev=+v});saveNotes(d.id);break;
+   case 'crit':n.assumptions.forEach(function(x){if(x.id===id)x.critical=!x.critical});saveNotes(d.id);break;
+   case 'delas':n.assumptions=n.assumptions.filter(function(x){return x.id!==id});saveNotes(d.id);break;
+   case 'addrk':var rt=V('newrk').trim();if(!rt)return;n.risks.push({id:rid(),text:rt,l:+V('rkl'),i:+V('rki'),undo:$('#rkundo').checked,fix:V('rkfix').trim()});saveNotes(d.id);break;
+   case 'delrk':n.risks=n.risks.filter(function(x){return x.id!==id});saveNotes(d.id);break;
+   case 'addcrit':var cr=V('newcrit2').trim();if(!cr)return;n.criteria.push({id:rid(),name:cr.slice(0,40),w:+V('newcw')||3});saveNotes(d.id);break;
+   case 'delcrit':n.criteria=n.criteria.filter(function(x){return x.id!==id});saveNotes(d.id);break;
+   case 'door':d.door=v;saveDec(d);break;
+   case 'addguest':var gn=V('guest').trim();if(!gn)return;if(n.guests.indexOf(gn)<0)n.guests.push(gn);saveNotes(d.id);break;
+   case 'resetair':if(!confirmed('resetair'))return;n.air={};n.turns={};n.active=null;saveNotes(d.id);break;
+   case 'talk':var kk=b.getAttribute('data-k');if(n.active===kk)n.active=null;else{n.active=kk;n.turns[kk]=(n.turns[kk]||0)+1}lastTick=Date.now();saveNotes(d.id);break;
+   case 'call':d.call=v;saveDec(d);break;
+   case 'genplan':var c=genPlan(d.id);toast(c?c+' action'+(c>1?'s':'')+' added':'The plan already covers every open gap');break;
+   case 'delplan':d.plan=d.plan.filter(function(p){return p.id!==id});saveDec(d);break;
+   case 'copyrep':copy(reportMD(d.id,false),'Report copied');return;
+   case 'dlrep':dlFile(slug(d.title)+'-report.md',reportMD(d.id,false));return;
+   case 'printrep':printReport(d.id);return;
+   case 'aiopen':aiDrawer();return;
+   case 'ai':runAI(v,d.id);return;
+   case 'aiadd':aiAdd(v);break;
+   case 'ores':d.outcome=Object.assign({process:score(d.id).n>=6?'good':'poor'},d.outcome||{},{result:v});saveDec(d);break;
+   case 'oproc':d.outcome=Object.assign({},d.outcome||{},{process:v});saveDec(d);break;
+   case 'savelearn':d.outcome=Object.assign({process:score(d.id).n>=6?'good':'poor'},d.outcome||{},{lesson:V('lesson').trim()});d.stage='learned';saveDec(d);toast('Lesson saved and shared with the team');break;
+   /* team */
+   case 'respond':UI.page='respond';UI.dec=id;UI.enter=true;break;
+   case 'f':var f=form(UI.dec),kf=b.getAttribute('data-k');f[kf]=kf==='conf'?+v:v;break;
+   case 'fsa':form(UI.dec).sa[+b.getAttribute('data-i')]=+v;break;
+   case 'ftrap':var ff=form(UI.dec),ix=ff.traps.indexOf(v);if(ix>-1)ff.traps.splice(ix,1);else ff.traps.push(v);break;
+   case 'coach':runAI('coach',UI.dec,Math.floor(Math.random()*5));return;
+   case 'submitshare':submitForm('share');return;
+   case 'submitch':submitForm('challenge');return;
+   default:return;
+  }
+  render();
+});
+function addLocalPerson(){var name=(prompt('Name of the team member who will answer now:')||'').trim();if(!name){VIEWAS='manager';UID='m_local';render();return}
+  var mid='u_'+rid();PEOPLE[mid]={mid:mid,name:name.slice(0,40),role:'member',joined:Date.now(),d:{},done:{}};NAMES[mid]=name;UID=mid;FORM={};COACH={};saveLocal();render()}
+function submitForm(kind){
+  var id=UI.dec,f=form(id),me=myDoc();if(!me.joined)me.joined=Date.now();var x=me.d[id]||{};
+  if(kind==='share'){x.vote=f.vote;x.conf=f.conf;x.know=f.know.trim();x.why=f.why.trim();x.sa=f.sa.slice();x.ts=Date.now()}
+  else{x.pre=f.pre.trim();x.concern=f.concern.trim();x.mind=f.mind.trim();x.traps=f.traps.slice();x.chTs=Date.now()}
+  me.d[id]=x;saveMe();delete FORM[id];UI.page='inbox';UI.enter=true;render();toast(kind==='share'?'Sent. It stays sealed until the reveal.':'Challenge sent. Thank you for pushing back.');
+}
+document.addEventListener('change',function(ev){
+  var e=ev.target,act=e.getAttribute('data-act'),id=e.getAttribute('data-id'),d=UI.dec&&DEC[UI.dec];
+  if(e.id==='asw'){if(e.value==='__new'){addLocalPerson();return}UID=e.value;FORM={};COACH={};UI.page='inbox';render();return}
+  if(e.id==='import'&&e.files&&e.files[0]){var rd=new FileReader();rd.onload=function(){try{var o=JSON.parse(rd.result);if(o.app!=='decision-room'||!o.decisions)throw 0;DEC=o.decisions;NOTES=o.notes||{};put('decisions/x');toast('Backup restored');render()}catch(err){toast('That file is not a Decision Room backup')}};rd.readAsText(e.files[0]);return}
+  if(e.id==='devil'&&d){d.devil=e.value||null;saveDec(d);render();return}
+  if(!act||!d)return;var n=notesOf(d.id);
+  if(act==='powner'||act==='pdue'){(d.plan||[]).forEach(function(p){if(p.id===id){if(act==='powner')p.owner=e.value;else p.due=e.value}});saveDec(d);return}
+  if(act==='cw'){n.criteria.forEach(function(c){if(c.id===id)c.w=+e.value});saveNotes(d.id);render();return}
+  if(act==='cs'){var o=e.getAttribute('data-o');n.scores[o]=n.scores[o]||{};n.scores[o][id]=+e.value;saveNotes(d.id);render();return}
+});
+document.addEventListener('change',function(ev){var e=ev.target;if(e.getAttribute('data-act')==='tdone'){var me=myDoc();if(e.checked)me.done[e.getAttribute('data-id')]=Date.now();else delete me.done[e.getAttribute('data-id')];saveMe();render()}});
+document.addEventListener('input',function(ev){
+  var e=ev.target,d=UI.dec&&DEC[UI.dec],f=e.getAttribute('data-f');
+  if(f&&UI.page==='respond'){form(UI.dec)[f]=e.value;var sb=document.querySelector('[data-act="submitch"]');if(sb&&f==='pre')sb.disabled=!(e.value.trim().length>2);return}
+  if(!d)return;
+  if(e.id==='reason'){d.reason=e.value;saveDec(d)}
+  else if(e.id==='trip'){d.tripwire=e.value;saveDec(d);renderSide()}
+  else if(e.id==='review'){d.review=e.value;saveDec(d)}
+});
+document.addEventListener('keydown',function(ev){
+  if(ev.key==='Escape'&&$('#layer').innerHTML){closeModal();return}
+  if(ev.key!=='Enter'||ev.target.tagName==='TEXTAREA')return;
+  var map={newch:'addch',newas:'addas',newrk:'addrk',rkfix:'addrk',guest:'addguest',newcrit2:'addcrit','nd-t':'createdec','nd-q':'createdec','c-name':'docreate','c-team':'docreate','j-code':'dojoin','j-name':'dojoin'},a=map[ev.target.id];
+  if(a){ev.preventDefault();var b=document.querySelector('[data-act="'+a+'"]');if(b)b.click()}
+});
+/* subtle 3D tilt */
+document.addEventListener('pointermove',function(ev){var t=ev.target.closest&&ev.target.closest('.tilt');if(!t||matchMedia('(prefers-reduced-motion: reduce)').matches)return;var r=t.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width-.5,y=(ev.clientY-r.top)/r.height-.5;t.style.transform='perspective(800px) rotateY('+(x*7)+'deg) rotateX('+(-y*7)+'deg) translateZ(4px)'});
+document.addEventListener('pointerout',function(ev){var t=ev.target.closest&&ev.target.closest('.tilt');if(t&&!t.contains(ev.relatedTarget))t.style.transform=''});
+function applyTheme(){var t=LS.get('dr.theme','auto');if(t==='auto')document.documentElement.removeAttribute('data-theme');else document.documentElement.setAttribute('data-theme',t)}
+window.addEventListener('hashchange',route);
+var rT;window.addEventListener('resize',function(){clearTimeout(rT);rT=setTimeout(function(){if(SES&&!(document.activeElement&&/INPUT|TEXTAREA/.test(document.activeElement.tagName)))render()},200)});
+applyTheme();route();
+})();
+</script>
+</body>
+</html>

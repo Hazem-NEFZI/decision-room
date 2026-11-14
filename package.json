@@ -1,0 +1,10 @@
+{
+  "name": "decision-room",
+  "version": "1.0.0",
+  "private": true,
+  "description": "How does a smart team make bad decisions? A team decision tool: Share, Challenge, Decide, Learn.",
+  "type": "module",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}
