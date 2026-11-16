@@ -7,6 +7,7 @@
 //   PUT  /api/room?code&key  {decisions,notes,name,team}
 //   POST /api/join    {code, name}           -> { mid, tok, name, team }
 //   PUT  /api/member?code&mid&tok {d, done}
+//   DELETE /api/member?code&key&mid          -> manager removes a teammate
 //   POST /api/ai      {code, key | mid+tok, task, payload}  (needs ANTHROPIC_API_KEY, else 501)
 import { getStore } from "@netlify/blobs";
 
@@ -134,6 +135,19 @@ export default async (req) => {
       if (b.done) a.m.done = b.done;
       a.m.updated = Date.now();
       await store.setJSON(memKey(c, a.m.mid), a.m);
+      return json({ ok: true });
+    }
+
+    if (route === "member" && req.method === "DELETE") { // manager removes a teammate (and their answers)
+      const c = q("code").toUpperCase();
+      const room = await authManager(c, q("key"));
+      if (!room) return json({ error: "Only the manager can remove people" }, 403);
+      const mid = q("mid");
+      if (mid === room.managerMid) return json({ error: "The manager cannot be removed" }, 400);
+      const m = await getMember(c, mid);
+      if (!m) return json({ ok: true });
+      if (m.role === "manager") return json({ error: "The manager cannot be removed" }, 400);
+      await store.delete(memKey(c, mid));
       return json({ ok: true });
     }
 
