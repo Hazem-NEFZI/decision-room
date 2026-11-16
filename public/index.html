@@ -859,11 +859,11 @@ function vTeam(){
   var rows=pg.items.map(function(u){var p=PEOPLE[u],ans=decs.filter(function(d){return p.d&&p.d[d.id]&&p.d[d.id].vote}).length,tasks=0,dn=0;
     decs.forEach(function(d){(d.plan||[]).forEach(function(t){if(t.owner===u){tasks++;if(taskDone(t))dn++}})});
     var roles=decs.filter(function(d){return d.devil===u&&stageIdx(d)<3}).length;
-    return '<tr><td><span class="row" style="flex-wrap:nowrap">'+avatar(u,26)+'<b>'+esc(nm(u))+'</b>'+(p.role==='manager'?'<span class="pill">Manager</span>':'')+'</span></td><td>'+fmtD(new Date(p.joined).toISOString())+'</td><td>'+ans+' / '+decs.length+'</td><td>'+dn+' / '+tasks+'</td><td>'+(roles?'<span class="pill acc">Devil’s advocate</span>':'')+'</td></tr>'}).join('');
+    return '<tr><td><span class="row" style="flex-wrap:nowrap">'+avatar(u,26)+'<b>'+esc(nm(u))+'</b>'+(p.role==='manager'?'<span class="pill">Manager</span>':'')+'</span></td><td>'+fmtD(new Date(p.joined).toISOString())+'</td><td>'+ans+' / '+decs.length+'</td><td>'+dn+' / '+tasks+'</td><td>'+(roles?'<span class="pill acc">Devil’s advocate</span>':'')+'</td><td style="text-align:right">'+(p.role!=='manager'&&u!==UID?'<button class="btn ghost sm danger" data-act="rmmember" data-id="'+esc(u)+'">'+(UI.confirm['rm:'+u]?'Click again to remove':'Remove')+'</button>':'')+'</td></tr>'}).join('');
   var hist=decs.slice(0,5).reverse().map(function(d){var a=liveAgg(d.id);return {t:d.title,s:a.safeN?a.safety:0}});
   return head('Team',ms.length+' in the room')+
-   '<div class="page g2" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)"><div class="panel"><div class="ph"><h2>Members</h2>'+pager('team',pg)+'</div>'+(ms.length?'<table class="t"><thead><tr><th>Name</th><th>Joined</th><th>Answered</th><th>Tasks done</th><th>Role</th></tr></thead><tbody>'+rows+'</tbody></table>':'<div class="empty">Nobody has joined yet.</div>')+
-   '<div class="grow"></div><div class="small dim">People appear after they join with the room code.</div></div>'+
+   '<div class="page g2" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)"><div class="panel"><div class="ph"><h2>Members</h2>'+pager('team',pg)+'</div>'+(ms.length?'<table class="t"><thead><tr><th>Name</th><th>Joined</th><th>Answered</th><th>Tasks done</th><th>Role</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>':'<div class="empty">Nobody has joined yet.</div>')+
+   '<div class="grow"></div><div class="small dim">People appear after they join with the room code. Remove deletes a person and their answers from this room.</div></div>'+
    '<div class="panel"><h3>Psychological safety by decision</h3><div class="hint">From the 3 Edmondson-style questions in every Share step. Below 3.5 is a warning.</div>'+(hist.length?bars3d('safety',hist.map(function(h,i){return {label:lh(h.t,12),v:h.s,t:h.s?h.s.toFixed(1):'–',col:h.s&&h.s<3.5?'#d8492f':'#2e9e6a'}}),5,'230px',{H:110,w:34,gap:22}):'<div class="empty">No answers yet.</div>')+'</div></div>';
 }
 /* ---- playbook ---- */
@@ -1070,6 +1070,10 @@ document.addEventListener('click',function(ev){
      var tp=TEMPLATES[NEWTPL],notes={assumptions:tp.as.map(function(x){return {id:rid(),text:x[0],ev:0,critical:x[1]}}),risks:tp.rk.map(function(x){return {id:rid(),text:x[0],l:x[1],i:x[2],undo:false,fix:''}})};
      createDec({title:t,question:V('nd-q').trim()||t+'?',context:V('nd-c').trim(),anonymous:$('#nd-a').checked,options:parseOpts(V('nd-o')),template:NEWTPL},notes);closeModal();return;
    case 'casestudy':caseStudy();return;
+   case 'rmmember':if(!ISMGR||!id||!PEOPLE[id]||PEOPLE[id].role==='manager')return;if(!confirmed('rm:'+id))return;
+     var gone=nm(id);var after=function(){delete PEOPLE[id];var ch=false;Object.keys(DEC).forEach(function(k){var x=DEC[k];if(x.devil===id){x.devil=null;ch=true}(x.plan||[]).forEach(function(t){if(t.owner===id){t.owner='_mgr';ch=true}})});if(ch)put('decisions/x');LASTSIG='';toast(gone+' removed');render()};
+     if(SES.mode==='local'){after();saveLocal();return}
+     api('DELETE','member?'+qs({code:SES.code,key:SES.key,mid:id})).then(after,function(e){toast(e.message||'Could not remove this person')});return;
    case 'deldec':if(!confirmed('deldec'))return;delete DEC[d.id];delete NOTES[d.id];put('decisions/x');UI.page='home';UI.dec=null;toast('Decision deleted');break;
    case 'reveal':d.results=publicResults(d.id);d.stage='challenge';d.revealedAt=Date.now();saveDec(d);UI.tab='share';PLAYED['v:'+d.id]=0;toast('Revealed. Your team can now challenge it.');break;
    case 'todecide':d.results=publicResults(d.id);d.stage='decide';saveDec(d);UI.tab='decide';break;
