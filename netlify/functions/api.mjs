@@ -62,10 +62,12 @@ export default async (req) => {
   }
 
   try {
-    if (route === "health") return json({ ok: true, ai: !!process.env.ANTHROPIC_API_KEY });
+    if (route === "health") return json({ ok: true, ai: !!process.env.ANTHROPIC_API_KEY, locked: !!process.env.CREATE_CODE });
 
     if (route === "rooms" && req.method === "POST") {
       const b = await body(req);
+      // If CREATE_CODE is set in Netlify, only someone who has it (the owner link) can create rooms.
+      if (process.env.CREATE_CODE && String(b.createCode || "") !== process.env.CREATE_CODE) return json({ error: "Only the site owner can create a room. Ask your manager for the room code." }, 403);
       const name = clean(b.name, 40) || "Manager";
       const team = clean(b.team, 60) || "Our team";
       let code = "";
