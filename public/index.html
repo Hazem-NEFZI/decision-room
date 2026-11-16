@@ -620,12 +620,15 @@ function vLanding(){
    '<h1>How does a <em>smart</em> team make a <em>bad</em> decision?</h1>'+
    '<div class="lead">Rarely because people lack intelligence. It happens when the team does not use what each person knows. Coca-Cola ran about 200,000 taste tests before New Coke, and the original came back 79 days later. Decision Room makes every big decision go through the three steps from our research.</div>'+
    '<div class="steps3">'+[['1','Share','What do we know?','Private views first, so nobody is anchored.'],['2','Challenge','What haven’t we tested?','Devil’s advocate, pre-mortem, even airtime.'],['3','Decide','What would change our call?','Readiness checks, tripwire, a plan with owners.']].map(function(x){return '<div class="s tilt"><b><i>'+x[0]+'</i>'+x[1]+'</b><small><b style="display:inline;font-size:12.5px">'+x[2]+'</b> '+x[3]+'</small></div>'}).join('')+'</div>'+
-   '<div class="row" style="gap:10px"><button class="btn pri lg" data-act="create">'+ic('plus')+'Create a team room</button><button class="btn lg" data-act="joinform">Join with a code</button><button class="btn ghost lg" data-act="trylocal">Try on this device</button></div>'+
+   '<div class="row" style="gap:10px">'+(canCreate()?'<button class="btn pri lg" data-act="create">'+ic('plus')+'Create a team room</button>':'')+'<button class="btn'+(canCreate()?'':' pri')+' lg" data-act="joinform">Join with a code</button><button class="btn ghost lg" data-act="trylocal">Try on this device</button></div>'+
    (saved.length?'<div class="row small"><span class="dim">Your rooms:</span>'+saved.slice(0,3).map(function(s,i){return '<button class="chip" data-act="resume" data-i="'+i+'">'+esc(s.team)+' · '+(s.key?'manager':'member')+'</button>'}).join('')+'</div>':'')+
    '<div class="stats"><span><b>~200k</b>taste tests said yes</span><span><b>1 in 10</b>testers reacted angrily</span><span><b>79 days</b>until the original came back</span><span><b>r = .41</b>even speaking turns (Woolley, 2010)</span></div>'+
    '</div><div class="lp-r" aria-hidden="false">'+heroScene()+
    '<div class="cap"><div><b>Six smart people. One warning signal.</b><small>The pulse is the person who noticed. The process decides if the team hears it.</small></div><div class="legend"><span><i style="background:#e4572e"></i>The warning</span><span><i style="background:#f4f1ea"></i>The decision</span></div></div></div></div>';
 }
+var LOCKED=false;
+function canCreate(){return !!LS.get('dr.owner','')||(!LOCKED&&!LS.get('dr.invited',0))}
+api('GET','health').then(function(h){if(h.locked){LOCKED=true;if(!SES)render()}}).catch(function(){});
 function createModal(){
   modal('<h2>Create a team room</h2><div class="mut small">You become the manager of the room. Your teammates join with a code: no account needed.</div>'+
    '<div><label class="lab" for="c-name">Your name</label><input class="field" id="c-name" placeholder="e.g. Hazem"></div>'+
@@ -1007,7 +1010,8 @@ function route(){
     api('GET','room?'+qs({code:c,key:p.key})).then(function(r){var me=(r.members||[]).filter(function(m){return m.role==='manager'})[0]||{};
       var known=LS.get('decision-room.sessions',[]).filter(function(x){return x.code===c&&x.key===p.key})[0];
       startSession(known||{mode:'net',code:c,key:p.key,mid:r.room.managerMid||me.mid,tok:'',name:me.name||'Manager',team:r.room.team})}).catch(function(e){toast(e.message||'Could not open the room')});return}
-  if(p.join){SES=null;render();joinModal(p.join.toUpperCase());return}
+  if(p.owner){LS.set('dr.owner',p.owner);LS.del('dr.invited');history.replaceState(null,'',location.pathname);toast('Owner mode is on for this device')}
+  if(p.join){if(!LS.get('dr.owner',''))LS.set('dr.invited',1);SES=null;render();joinModal(p.join.toUpperCase());return}
   var cur=LS.get('decision-room.current',null);
   if(cur&&cur.mode==='local')return startSession({mode:'local'});
   if(cur&&cur.code)return startSession(cur);
@@ -1037,12 +1041,12 @@ document.addEventListener('click',function(ev){
   if((act==='closemodal'||act==='aiclose')&&(b.classList.contains('modal')||b.classList.contains('drawer'))&&ev.target!==b)return;
   switch(act){
    /* landing */
-   case 'create':createModal();return;
+   case 'create':if(!canCreate())return;createModal();return;
    case 'joinform':joinModal('');return;
    case 'trylocal':startSession({mode:'local'});return;
    case 'resume':var ss=LS.get('decision-room.sessions',[])[+b.getAttribute('data-i')];if(ss)startSession(ss);return;
    case 'docreate':var cn=V('c-name').trim(),ct=V('c-team').trim();if(cn.length<2){toast('Enter your name');return}b.disabled=true;
-     api('POST','rooms',{name:cn,team:ct}).then(function(r){closeModal();startSession({mode:'net',code:r.code,key:r.key,mid:r.mid,tok:r.tok,name:r.name,team:r.team});UI.page='room';render();toast('Room created. Share the code with your team.')})
+     api('POST','rooms',{name:cn,team:ct,createCode:LS.get('dr.owner','')}).then(function(r){closeModal();startSession({mode:'net',code:r.code,key:r.key,mid:r.mid,tok:r.tok,name:r.name,team:r.team});UI.page='room';render();toast('Room created. Share the code with your team.')})
       .catch(function(e){b.disabled=false;toast(e.status===404||!e.status?'The online room service is not available here. Deploy to Netlify, or use “Try on this device”.':e.message)});return;
    case 'dojoin':var jc=V('j-code').trim().toUpperCase(),jn=V('j-name').trim();if(jc.length!==6){toast('The code has 6 characters');return}if(jn.length<2){toast('Enter your name');return}b.disabled=true;
      api('POST','join',{code:jc,name:jn}).then(function(r){closeModal();startSession({mode:'net',code:r.code,mid:r.mid,tok:r.tok,name:r.name,team:r.team});toast('Welcome to '+r.team)})
